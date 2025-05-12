@@ -1,12 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import AddressForm from '@/components/AddressForm'
+import ImportForm from '@/components/ImportForm'
 
 export default function Home() {
   return (
@@ -24,7 +21,7 @@ export default function Home() {
 
         {/* Tabs */}
         <Tabs
-          value='line'
+          defaultValue='line'
           className='p-3'
         >
           <TabsList className='grid w-full grid-cols-2'>
@@ -36,7 +33,9 @@ export default function Home() {
             <AddressForm />
           </TabsContent>
 
-          <TabsContent value='import'></TabsContent>
+          <TabsContent value='import'>
+            <ImportForm />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
