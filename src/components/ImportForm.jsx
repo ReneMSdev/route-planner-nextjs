@@ -9,7 +9,7 @@ export default function ImportForm() {
         <CardTitle>Import CSV or Excel</CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
-        <p>Upload a CSV or SLSX file with a list of addresses.</p>
+        <p>Upload a CSV or XLSX file with a list of addresses.</p>
         <p>Each row should contain one address.</p>
       </CardContent>
     </Card>

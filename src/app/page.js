@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className='flex h-screen'>
       {/* Left Column */}
-      <div className='w-1/3 border-r border-gray-200'>
+      <div className='w-1/3 min-w-[300px] border-r border-gray-300'>
         <div className='flex justify-center items-center gap-5 bg-gray-700 py-6 px-2'>
           <h1 className='text-3xl font-bold text-white'>Route Boss</h1>
           <Separator
@@ -25,8 +25,18 @@ export default function Home() {
           className='p-3'
         >
           <TabsList className='grid w-full grid-cols-2'>
-            <TabsTrigger value='line'>Line by Line</TabsTrigger>
-            <TabsTrigger value='import'>Import</TabsTrigger>
+            <TabsTrigger
+              value='line'
+              className='cursor-pointer'
+            >
+              Line by Line
+            </TabsTrigger>
+            <TabsTrigger
+              value='import'
+              className='cursor-pointer'
+            >
+              Import
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='line'>
