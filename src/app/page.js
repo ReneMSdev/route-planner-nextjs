@@ -2,7 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import AddressForm from '@/components/AddressForm'
+import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
 
 export default function Home() {
