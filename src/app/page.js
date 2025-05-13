@@ -1,11 +1,25 @@
 'use client'
 
+import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
+import { parseFile } from '@/components/ImportForm/parseFile'
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState('import')
+  const [addresses, setAddresses] = useState(['', ''])
+
+  const handleFileAccepted = (file) => {
+    parseFile(file, (parsedAddresses) => {
+      if (parsedAddresses.length > 0) {
+        setAddresses(parsedAddresses)
+        setActiveTab('line') // auto-switch to Line by line tab
+      }
+    })
+  }
+
   return (
     <div className='flex h-screen'>
       {/* Left Column */}
@@ -21,7 +35,8 @@ export default function Home() {
 
         {/* Tabs */}
         <Tabs
-          defaultValue='line'
+          value={activeTab}
+          onValueChange={setActiveTab}
           className='p-3'
         >
           <TabsList className='grid w-full grid-cols-2'>
@@ -40,11 +55,14 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value='line'>
-            <AddressForm />
+            <AddressForm
+              stops={addresses}
+              setStops={setAddresses}
+            />
           </TabsContent>
 
           <TabsContent value='import'>
-            <ImportForm />
+            <ImportForm onFileAccepted={handleFileAccepted} />
           </TabsContent>
         </Tabs>
       </div>
