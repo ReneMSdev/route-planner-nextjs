@@ -6,10 +6,15 @@ import { Separator } from '@/components/ui/separator'
 import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
 import { parseFile } from '@/components/ImportForm/parseFile'
+import dynamic from 'next/dynamic'
+
+const MapDisplay = dynamic(() => import('@/components/MapDisplay'))
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('import')
   const [addresses, setAddresses] = useState(['', ''])
+
+  const [coordinates, setCoordinates] = useState([])
 
   const handleFileAccepted = (file) => {
     parseFile(file, (parsedAddresses) => {
@@ -65,6 +70,11 @@ export default function Home() {
             <ImportForm onFileAccepted={handleFileAccepted} />
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Right Column */}
+      <div className='flex-1'>
+        <MapDisplay coordinates={coordinates} />
       </div>
     </div>
   )
