@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
 
-export default function AddressForm({ stops, setStops }) {
+export default function AddressForm({ stops, setStops, onSubmit }) {
   const handleAddStop = () => {
     setStops([...stops, ''])
   }
@@ -73,7 +73,7 @@ export default function AddressForm({ stops, setStops }) {
         <Separator className='my-4' />
 
         <Button
-          onClick={() => console.log(stops)}
+          onClick={onSubmit}
           className='w-full bg-gray-700 cursor-pointer'
         >
           Submit Route

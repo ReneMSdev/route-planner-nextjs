@@ -7,6 +7,7 @@ import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
 import { parseFile } from '@/components/ImportForm/parseFile'
 import dynamic from 'next/dynamic'
+import { geocodeAddresses } from '@/utils/geocodeAddresses'
 
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), { ssr: false })
 
@@ -15,6 +16,11 @@ export default function Home() {
   const [addresses, setAddresses] = useState(['', ''])
 
   const [coordinates, setCoordinates] = useState([])
+
+  const geocodeAndSet = async () => {
+    const results = await geocodeAddresses(addresses)
+    setCoordinates(results)
+  }
 
   const handleFileAccepted = (file) => {
     parseFile(file, (parsedAddresses) => {
@@ -63,6 +69,7 @@ export default function Home() {
             <AddressForm
               stops={addresses}
               setStops={setAddresses}
+              onSubmit={geocodeAndSet}
             />
           </TabsContent>
 
