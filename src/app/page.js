@@ -8,7 +8,7 @@ import ImportForm from '@/components/ImportForm'
 import { parseFile } from '@/components/ImportForm/parseFile'
 import dynamic from 'next/dynamic'
 
-const MapDisplay = dynamic(() => import('@/components/MapDisplay'))
+const MapDisplay = dynamic(() => import('@/components/MapDisplay'), { ssr: false })
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('import')
