@@ -4,7 +4,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
-// Fix default icon issues with Leaflet in Next.js
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 
@@ -30,14 +29,23 @@ export default function MapDisplay({ coordinates }) {
         subdomains={['a', 'b', 'c', 'd']}
         maxZoom={20}
       />
-      {coordinates?.map((coord, idx) => (
-        <Marker
-          key={idx}
-          position={coord}
-        >
-          <Popup>Stop {String.fromCharCode(65 + idx)}</Popup>
-        </Marker>
-      ))}
+      {coordinates?.map((coord, idx) => {
+        const label = String.fromCharCode(65 + idx)
+
+        const icon = L.divIcon({
+          className: 'custom-marker-label',
+          html: `<div class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow">${label}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        })
+        return (
+          <Marker
+            key={idx}
+            position={coord}
+            icon={icon}
+          ></Marker>
+        )
+      })}
     </MapContainer>
   )
 }
