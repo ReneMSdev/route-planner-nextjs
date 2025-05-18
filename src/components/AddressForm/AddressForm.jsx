@@ -37,6 +37,7 @@ export default function AddressForm({ stops, setStops, onSubmit }) {
     <Card className='border-none shadow-none m-0'>
       <CardHeader className='px-0'>
         <CardTitle>One address per line</CardTitle>
+        <p className='text-sm text-muted-foreground'>First address will be start of route</p>
       </CardHeader>
       <CardContent className='space-y-3 px-0'>
         <DndContext
