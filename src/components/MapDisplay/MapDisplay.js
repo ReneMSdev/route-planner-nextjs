@@ -1,9 +1,9 @@
 'use client'
+import { useEffect } from 'react'
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 
@@ -15,6 +15,19 @@ L.Marker.prototype.options.icon = DefaultIcon
 
 export default function MapDisplay({ coordinates }) {
   const defaultPosition = [30.2672, -97.7431] // Austin, TX as fallback
+
+  function FitBounds({ coordinates }) {
+    const map = useMap()
+
+    useEffect(() => {
+      if (!coordinates || coordinates.length === 0) return
+
+      const bounds = L.latLngBounds(coordinates)
+      map.fitBounds(bounds, { padding: [50, 50] })
+    }, [coordinates, map])
+
+    return null
+  }
 
   return (
     <MapContainer
@@ -29,6 +42,7 @@ export default function MapDisplay({ coordinates }) {
         subdomains={['a', 'b', 'c', 'd']}
         maxZoom={20}
       />
+      <FitBounds coordinates={coordinates} />
       {coordinates?.map((coord, idx) => {
         const label = String.fromCharCode(65 + idx)
 

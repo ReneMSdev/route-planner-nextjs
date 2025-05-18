@@ -12,7 +12,7 @@ import { geocodeAddresses } from '@/utils/geocodeAddresses'
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), { ssr: false })
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('import')
+  const [activeTab, setActiveTab] = useState('line')
   const [addresses, setAddresses] = useState(['', ''])
 
   const [coordinates, setCoordinates] = useState([])

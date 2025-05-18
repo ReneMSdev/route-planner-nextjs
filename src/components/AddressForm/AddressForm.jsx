@@ -74,7 +74,7 @@ export default function AddressForm({ stops, setStops, onSubmit }) {
 
         <Button
           onClick={onSubmit}
-          className='w-full bg-gray-700 cursor-pointer'
+          className=' bg-gray-700 cursor-pointer w-70 mx-auto block'
         >
           Submit Route
         </Button>
