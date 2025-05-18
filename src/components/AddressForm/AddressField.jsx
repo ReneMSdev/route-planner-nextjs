@@ -1,8 +1,12 @@
+'use client'
+
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Textarea } from '@/components/ui/textarea'
 import { FaTimes, FaBars } from 'react-icons/fa'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+import ClientOnly from '@/components/ClientOnly'
 
 export default function AddressField({ id, label, value, onChange, onRemove, canRemove }) {
   const { attributes, listeners, setNodeRef, transform } = useSortable({ id })
@@ -28,20 +32,22 @@ export default function AddressField({ id, label, value, onChange, onRemove, can
         />
 
         {/* Drag Handle with Tooltip */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                {...attributes}
-                {...listeners}
-                className='absolute top-0 right-0 h-full w-8 bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-grab rounded-r-sm'
-              >
-                <FaBars className='text-gray-500 text-sm' />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Drag to reorder</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <ClientOnly>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className='absolute top-0 right-0 h-full w-8 bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-grab rounded-r-sm'
+                >
+                  <FaBars className='text-gray-500 text-sm' />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Drag to reorder</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </ClientOnly>
 
         {/* Remove X with Tooltip */}
         {canRemove && (

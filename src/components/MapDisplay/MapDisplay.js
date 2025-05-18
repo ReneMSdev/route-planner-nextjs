@@ -44,6 +44,8 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
       />
       <FitBounds coordinates={coordinates} />
       {coordinates?.map((coord, idx) => {
+        if (!coord || coord.length !== 2) return null
+
         const label = String.fromCharCode(65 + idx)
 
         const icon = L.divIcon({

@@ -9,6 +9,7 @@ import { parseFile } from '@/components/ImportForm/parseFile'
 import dynamic from 'next/dynamic'
 import { geocodeAddresses } from '@/utils/geocodeAddresses'
 import { fetchRoadRoute } from '@/utils/fetchRoute'
+import { optimizeRoute } from '@/utils/optimizeRoute'
 
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), { ssr: false })
 
@@ -22,6 +23,13 @@ export default function Home() {
   const geocodeAndSet = async () => {
     const results = await geocodeAddresses(addresses)
     setCoordinates(results)
+
+    const order = await optimizeRoute(results)
+    const reorderedCoords = order.map((i) => results[i])
+    const reorderedAddresses = order.map((i) => addresses[i])
+
+    setCoordinates(reorderedCoords)
+    setAddresses(reorderedAddresses)
 
     const routedPath = await fetchRoadRoute(results)
     setRoadPolyline(routedPath)
