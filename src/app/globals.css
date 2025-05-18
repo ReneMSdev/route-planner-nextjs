@@ -120,3 +120,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+html,
+body,
+#__next {
+  height: 100%;
+}
