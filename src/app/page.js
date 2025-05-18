@@ -31,7 +31,7 @@ export default function Home() {
     setCoordinates(reorderedCoords)
     setAddresses(reorderedAddresses)
 
-    const routedPath = await fetchRoadRoute(results)
+    const routedPath = await fetchRoadRoute(reorderedCoords) // use optimized order
     setRoadPolyline(routedPath)
   }
 
