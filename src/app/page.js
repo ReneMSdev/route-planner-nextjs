@@ -8,6 +8,7 @@ import ImportForm from '@/components/ImportForm'
 import { parseFile } from '@/components/ImportForm/parseFile'
 import dynamic from 'next/dynamic'
 import { geocodeAddresses } from '@/utils/geocodeAddresses'
+import { fetchRoadRoute } from '@/utils/fetchRoute'
 
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), { ssr: false })
 
@@ -16,10 +17,14 @@ export default function Home() {
   const [addresses, setAddresses] = useState(['', ''])
 
   const [coordinates, setCoordinates] = useState([])
+  const [roadPolyline, setRoadPolyline] = useState([])
 
   const geocodeAndSet = async () => {
     const results = await geocodeAddresses(addresses)
     setCoordinates(results)
+
+    const routedPath = await fetchRoadRoute(results)
+    setRoadPolyline(routedPath)
   }
 
   const handleFileAccepted = (file) => {
@@ -81,7 +86,10 @@ export default function Home() {
 
       {/* Right Column */}
       <div className='flex-1'>
-        <MapDisplay coordinates={coordinates} />
+        <MapDisplay
+          coordinates={coordinates}
+          roadPolyline={roadPolyline}
+        />
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png'
@@ -13,7 +13,7 @@ let DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
-export default function MapDisplay({ coordinates }) {
+export default function MapDisplay({ coordinates, roadPolyline }) {
   const defaultPosition = [30.2672, -97.7431] // Austin, TX as fallback
 
   function FitBounds({ coordinates }) {
@@ -60,6 +60,16 @@ export default function MapDisplay({ coordinates }) {
           ></Marker>
         )
       })}
+      {roadPolyline.length > 1 && (
+        <Polyline
+          positions={roadPolyline}
+          pathOptions={{
+            color: 'blue',
+            weight: 6,
+            opacity: 0.6,
+          }}
+        />
+      )}
     </MapContainer>
   )
 }
