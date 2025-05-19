@@ -23,8 +23,6 @@ export async function optimizeRoute(coordinates) {
     vehicles: [vehicle],
   }
 
-  console.log('OPTIMIZATION REQUEST:', JSON.stringify(body, null, 2))
-
   const res = await fetch('https://api.openrouteservice.org/optimization', {
     method: 'POST',
     headers: {
@@ -35,7 +33,6 @@ export async function optimizeRoute(coordinates) {
   })
 
   const data = await res.json()
-  console.log('ORS OPTIMIZATION RESPONSE:', JSON.stringify(data, null, 2))
 
   const stepIds = data.routes?.[0]?.steps
     ?.filter((step) => step.type === 'job')

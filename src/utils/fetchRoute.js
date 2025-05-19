@@ -17,7 +17,5 @@ export async function fetchRoadRoute(coords) {
   const data = await res.json()
 
   const roadCoords = data.features[0].geometry.coordinates.map(([lng, lat]) => [lat, lng])
-  // debuggging
-  console.log(roadCoords)
   return roadCoords
 }

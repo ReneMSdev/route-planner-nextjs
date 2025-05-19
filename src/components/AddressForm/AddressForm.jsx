@@ -2,14 +2,21 @@
 
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-
+import { useState } from 'react'
 import AddressField from './AddressField'
 import { Button } from '../ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
 
-export default function AddressForm({ stops, setStops, onSubmit }) {
+export default function AddressForm({ stops, setStops, onSubmit, onExportClick }) {
+  const [routeSubmitted, setRouteSubmitted] = useState(false)
+
+  const handleSubmit = () => {
+    onSubmit()
+    setRouteSubmitted(true)
+  }
+
   const handleAddStop = () => {
     setStops([...stops, ''])
   }
@@ -74,11 +81,22 @@ export default function AddressForm({ stops, setStops, onSubmit }) {
         <Separator className='my-4' />
 
         <Button
-          onClick={onSubmit}
-          className=' bg-gray-700 cursor-pointer w-70 mx-auto block'
+          onClick={handleSubmit}
+          className=' bg-gray-600 cursor-pointer w-70 mx-auto block hover:bg-gray-500'
         >
           Submit Route
         </Button>
+
+        {routeSubmitted && (
+          <div className='mt-4 text-center'>
+            <Button
+              className='w-70 bg-green-500 hover:bg-green-400 cursor-pointer'
+              onClick={onExportClick}
+            >
+              Export Route
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
