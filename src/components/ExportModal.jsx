@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useEffect, useState } from 'react'
 import { useQRCode } from 'next-qrcode'
 
 export default function ExportModal({ open, onClose, onDownloadPDF, qrUrl }) {
@@ -28,44 +27,25 @@ export default function ExportModal({ open, onClose, onDownloadPDF, qrUrl }) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className='flex flex-col sm:flex-row gap-6'>
-          {/* PDF Export Option */}
-          <div className='flex-1 text-center space-y-2'>
-            <Button
-              onClick={onDownloadPDF}
-              className='w-full bg-gray-600 hover:bg-gray-500 cursor-pointer'
-            >
-              📄 Download PDF
-            </Button>
-            <p className='text-sm text-muted-foreground'>
-              Save a printable copy of your optimized route.
-            </p>
-          </div>
-
-          {/* Vertical Separator */}
-          <Separator
-            orientation='vertical'
-            className='hidden sm:block'
-          />
-
-          {/* QR Code Option */}
-          <div className='flex-1 text-center space-y-2'>
-            <Button
-              onClick={() => console.log('generateQR')}
-              className='w-full bg-green-500 hover:bg-green-400 cursor-pointer'
-            >
-              📱 Generate QR Code
-            </Button>
-            <p className='text-sm text-muted-foreground'>Scan to open in Google Maps.</p>
-          </div>
+        {/* PDF Export Option */}
+        <div className=' text-center space-y-2'>
+          <Button
+            onClick={onDownloadPDF}
+            className='w-70 bg-green-500 hover:bg-green-400 cursor-pointer'
+          >
+            📄 Download PDF
+          </Button>
+          <p className='text-sm text-muted-foreground'>
+            Save a printable copy of your optimized route.
+          </p>
         </div>
 
         {/* QR Code */}
         {qrUrl && (
           <>
-            <Separator className='my-4' />
+            <Separator className='my-3' />
 
-            <div className='mt-6 flex justify-center'>
+            <div className='mt-2 flex justify-center'>
               <Canvas
                 text={qrUrl}
                 options={{
@@ -80,7 +60,7 @@ export default function ExportModal({ open, onClose, onDownloadPDF, qrUrl }) {
                 }}
               />
             </div>
-            <p className='text-center text-xs text-muted-forground mt-2'>
+            <p className='text-center text-xs text-muted-forground mt-1'>
               Scan to open in Google Maps
             </p>
           </>
