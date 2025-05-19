@@ -12,6 +12,7 @@ import { fetchRoadRoute } from '@/utils/fetchRoute'
 import { optimizeRoute } from '@/utils/optimizeRoute'
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
 import ExportModal from '@/components/ExportModal'
+import { generateGoogleMapsUrl } from '../utils/generateGoogleMapsUrl'
 
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), { ssr: false })
 
@@ -50,10 +51,6 @@ export default function Home() {
 
   const handleDownloadPDF = () => {
     console.log('📄 Download PDF clicked')
-  }
-
-  const handleGenerateQR = () => {
-    console.log('📱 Generate QR clicked')
   }
 
   return (
@@ -134,7 +131,7 @@ export default function Home() {
         open={showExportModal}
         onClose={() => setShowExportModal(false)}
         onDownloadPDF={handleDownloadPDF}
-        onGenerateQR={handleGenerateQR}
+        qrUrl={generateGoogleMapsUrl(coordinates)}
       />
     </>
   )

@@ -9,8 +9,12 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useEffect, useState } from 'react'
+import { useQRCode } from 'next-qrcode'
 
-export default function ExportModal({ open, onClose, onDownloadPDF, onGenerateQR }) {
+export default function ExportModal({ open, onClose, onDownloadPDF, qrUrl }) {
+  const { Canvas } = useQRCode()
+
   return (
     <Dialog
       open={open}
@@ -29,7 +33,7 @@ export default function ExportModal({ open, onClose, onDownloadPDF, onGenerateQR
           <div className='flex-1 text-center space-y-2'>
             <Button
               onClick={onDownloadPDF}
-              className='w-full'
+              className='w-full bg-gray-600 hover:bg-gray-500 cursor-pointer'
             >
               📄 Download PDF
             </Button>
@@ -47,14 +51,40 @@ export default function ExportModal({ open, onClose, onDownloadPDF, onGenerateQR
           {/* QR Code Option */}
           <div className='flex-1 text-center space-y-2'>
             <Button
-              onClick={onGenerateQR}
-              className='w-full'
+              onClick={() => console.log('generateQR')}
+              className='w-full bg-green-500 hover:bg-green-400 cursor-pointer'
             >
               📱 Generate QR Code
             </Button>
             <p className='text-sm text-muted-foreground'>Scan to open in Google Maps.</p>
           </div>
         </div>
+
+        {/* QR Code */}
+        {qrUrl && (
+          <>
+            <Separator className='my-4' />
+
+            <div className='mt-6 flex justify-center'>
+              <Canvas
+                text={qrUrl}
+                options={{
+                  errorCorrectionLevel: 'M',
+                  margin: 2,
+                  scale: 4,
+                  width: 200,
+                  color: {
+                    dark: '#000000',
+                    light: '#ffffff',
+                  },
+                }}
+              />
+            </div>
+            <p className='text-center text-xs text-muted-forground mt-2'>
+              Scan to open in Google Maps
+            </p>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
