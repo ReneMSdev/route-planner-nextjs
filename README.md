@@ -26,6 +26,12 @@ Export Options:
 * Download a **PDF summary** with addresses in optimized order
 * Generate and scan a **QR code** to open the route in Goolgle Mpaps on a mobile phone
 
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
+
 ## Getting Started
 
 First, run the development server:
