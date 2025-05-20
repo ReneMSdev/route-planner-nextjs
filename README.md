@@ -1,5 +1,5 @@
 # Live Deployment with Vercel
-route-planner-nextjs.vercel.app
+https://route-planner-nextjs.vercel.app
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
