@@ -52,6 +52,14 @@ src
 ├── utils                # Geocoding, route logic, PDF & QR helpers
 ├── lib                  # General utility functions
 ```
+## ⚠️ Environment Variables
+
+To run locally, create a .env.local file and add:
+```bash
+NEXT_PUBLIC_OPENCAGE_API_KEY=your_opencage_api_key
+NEXT_PUBLIC_ORS_API_KEY=your_openrouteservice_api_key
+```
+| You'll need valid keys from OpenCage and ORS
 
 ## ⚙️ Getting Started
 
