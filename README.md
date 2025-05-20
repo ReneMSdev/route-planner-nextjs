@@ -1,11 +1,11 @@
-# Live Deployment with Vercel
+# 🌐 Live Deployment with Vercel
 https://route-planner-nextjs.vercel.app
 
 # Route Boss
 
 **Route Boss** is a modern route planning web app built with Next.js 13 App Router and React 19. It is styled using Tailwind CSS and shadcn/ui. It lets users input delivery or travel destinations, optimize routes, visualize them on a map, and export them for use in the real world. 
 
-## Features
+## 💡 Features
 
 Two Input Modes:
 * Line-by-line manual address entry
@@ -26,13 +26,20 @@ Export Options:
 * Download a **PDF summary** with addresses in optimized order
 * Generate and scan a **QR code** to open the route in Goolgle Mpaps on a mobile phone
 
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+## 📝 Tech Stack
 
-## Getting Started
+| Layer        | Technology     |
+| ------------- |:-------------:|
+| Frontend     | Next.js 13 / App Router |
+| Styling    | Tailwind CSS + shadcn/ui      |
+|  Map Rendering | Leaflet.js     |
+|  Geocoding | OpenCage Data   |
+|  Routing API | OpenRouteService    |
+|  File Handling | react-dropzone, xlsx, papaparse   |
+|  PDF Generation | jsPDF, html2canvas     |
+|  QR Code | next-qrcode   |
+
+## ⚙️ Getting Started
 
 First, run the development server:
 
