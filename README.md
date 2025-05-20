@@ -3,7 +3,7 @@
 **Route Boss** is a modern route planning web app built with Next.js 13 App Router and React 19. It is styled using Tailwind CSS and shadcn/ui. It lets users input delivery or travel destinations, optimize routes, visualize them on a map, and export them for use in the real world. 
 
 ## 🌐 Live Deployment with Vercel
-(https://route-planner-nextjs.vercel.app)
+https://route-planner-nextjs.vercel.app
 
 ## 💡 Features
 
@@ -38,6 +38,20 @@ Export Options:
 |  File Handling | react-dropzone, xlsx, papaparse   |
 |  PDF Generation | jsPDF, html2canvas     |
 |  QR Code | next-qrcode   |
+
+## ⚖️ Folder Structure
+```bash
+src
+├── app                  # Next.js App Router structure
+├── components           # Reusable UI and app logic
+│   ├── AddressForm      # Line-by-line entry UI
+│   ├── ImportForm       # Drag-and-drop + file import
+│   ├── MapDisplay       # Leaflet map wrapper
+│   ├── ExportModal      # PDF/QR export modal
+│   └── ui               # shadcn/ui components
+├── utils                # Geocoding, route logic, PDF & QR helpers
+├── lib                  # General utility functions
+```
 
 ## ⚙️ Getting Started
 
