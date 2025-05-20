@@ -41,12 +41,12 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
   }
 
   return (
-    <Card className='border-none shadow-none m-0'>
+    <Card className='border-none shadow-none m-0 max-h-[70vh] overflow-y-auto'>
       <CardHeader className='px-0'>
         <CardTitle>One address per line</CardTitle>
         <p className='text-sm text-muted-foreground'>First address will be start of route</p>
       </CardHeader>
-      <CardContent className='space-y-3 px-0'>
+      <CardContent className='space-y-3  px-0'>
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
