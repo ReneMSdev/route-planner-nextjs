@@ -74,4 +74,8 @@ pnpm dev
 # or
 bun dev
 ```
+Then open http://localhost:3000 to use the app
+
+## Licence
+MIT
 
