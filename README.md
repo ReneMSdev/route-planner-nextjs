@@ -1,9 +1,9 @@
-# 🌐 Live Deployment with Vercel
-https://route-planner-nextjs.vercel.app
-
 # Route Boss
 
 **Route Boss** is a modern route planning web app built with Next.js 13 App Router and React 19. It is styled using Tailwind CSS and shadcn/ui. It lets users input delivery or travel destinations, optimize routes, visualize them on a map, and export them for use in the real world. 
+
+## 🌐 Live Deployment with Vercel
+(https://route-planner-nextjs.vercel.app)
 
 ## 💡 Features
 
