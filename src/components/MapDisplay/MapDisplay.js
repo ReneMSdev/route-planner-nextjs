@@ -31,6 +31,7 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
 
   return (
     <MapContainer
+      id='map'
       center={coordinates?.[0] || defaultPosition}
       zoom={12}
       scrollWheelZoom={true}
