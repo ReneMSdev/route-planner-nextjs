@@ -41,10 +41,11 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
   }
 
   return (
-    <Card className='border-none shadow-none m-0 max-h-[70vh] overflow-y-auto'>
+    <Card className='border-none shadow-none m-0 px-3 pt-3 max-h-[70vh] overflow-y-auto'>
       <CardHeader className='px-0'>
         <CardTitle>One address per line</CardTitle>
-        <p className='text-sm text-muted-foreground'>First address will be start of route</p>
+        <p className='text-sm text-muted-foreground'>Address "A" will be your starting location</p>
+        <p className='text-sm text-muted-foreground'>You may readjust by dragging</p>
       </CardHeader>
       <CardContent className='space-y-3  px-0'>
         <DndContext
@@ -82,7 +83,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
 
         <Button
           onClick={handleSubmit}
-          className=' bg-gray-600 cursor-pointer w-70 mx-auto block hover:bg-gray-500'
+          className=' bg-gray-600 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-gray-500'
         >
           Submit Route
         </Button>
@@ -90,7 +91,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
         {routeSubmitted && (
           <div className='mt-4 text-center'>
             <Button
-              className='w-70 bg-green-500 hover:bg-green-400 cursor-pointer'
+              className='w-full max-w-[280px] bg-green-500 hover:bg-green-400 cursor-pointer'
               onClick={onExportClick}
             >
               Export Route

@@ -67,8 +67,8 @@ export default function Home() {
           maxSize={50}
           className='min-width-[300px]'
         >
-          <div className='h-full border-r border-gray-300'>
-            <div className='flex justify-center items-center gap-5 bg-gray-700 py-6 px-2'>
+          <div className='h-full border-r border-gray-300 pb-6'>
+            <div className='flex justify-center items-center gap-5 bg-gray-700 py-6 px-4'>
               <h1 className='text-3xl font-bold text-white'>Route Boss</h1>
               <Separator
                 orientation='vertical'
@@ -81,7 +81,7 @@ export default function Home() {
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className='p-3'
+              className='p-3 my-3 mx-4'
             >
               <TabsList className='grid w-full grid-cols-2'>
                 <TabsTrigger
