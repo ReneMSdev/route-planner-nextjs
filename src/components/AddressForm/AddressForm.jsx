@@ -2,7 +2,7 @@
 
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import AddressField from './AddressField'
 import { Button } from '../ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -11,10 +11,15 @@ import { FaPlus } from 'react-icons/fa'
 
 export default function AddressForm({ stops, setStops, onSubmit, onExportClick }) {
   const [routeSubmitted, setRouteSubmitted] = useState(false)
+  const bottomRef = useRef(null)
 
   const handleSubmit = () => {
     onSubmit()
     setRouteSubmitted(true)
+
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }, 100)
   }
 
   const handleAddStop = () => {
@@ -43,11 +48,11 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
   return (
     <Card className='border-none shadow-none m-0 px-3 pt-3 max-h-[70vh] overflow-y-auto'>
       <CardHeader className='px-0'>
-        <CardTitle>One address per line</CardTitle>
+        <CardTitle className='text-gray-700'>One address per line</CardTitle>
         <p className='text-sm text-muted-foreground'>Address "A" will be your starting location</p>
         <p className='text-sm text-muted-foreground'>You may readjust by dragging</p>
       </CardHeader>
-      <CardContent className='space-y-3  px-0'>
+      <CardContent className='space-y-3  px-0 pb-8'>
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
@@ -83,15 +88,18 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
 
         <Button
           onClick={handleSubmit}
-          className=' bg-gray-600 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-gray-500'
+          className='text-white bg-orange-400 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-orange-300'
         >
           Submit Route
         </Button>
 
         {routeSubmitted && (
-          <div className='mt-4 text-center'>
+          <div
+            className='mt-4 text-center'
+            ref={bottomRef}
+          >
             <Button
-              className='w-full max-w-[280px] bg-green-500 hover:bg-green-400 cursor-pointer'
+              className='text-white w-full max-w-[280px] bg-slate-600 hover:bg-slate-500 cursor-pointer'
               onClick={onExportClick}
             >
               Export Route

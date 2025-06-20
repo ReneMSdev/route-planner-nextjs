@@ -68,13 +68,15 @@ export default function Home() {
           className='min-width-[300px]'
         >
           <div className='h-full border-r border-gray-300 pb-6'>
-            <div className='flex justify-center items-center gap-5 bg-gray-700 py-6 px-4'>
+            <div className='flex justify-center items-center gap-5 bg-orange-400 py-6 px-4'>
               <h1 className='text-3xl font-bold text-white'>Route Boss</h1>
               <Separator
                 orientation='vertical'
-                className='bg-gray-300 h-12'
+                className='bg-gray-100 h-12'
               />
-              <p className='text-sm text-gray-300'>Plan your optimal delivery or travel route</p>
+              <p className='text-sm text-white font-semibold'>
+                Plan your optimal delivery or travel route
+              </p>
             </div>
 
             {/* Tabs */}
