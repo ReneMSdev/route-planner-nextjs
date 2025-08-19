@@ -1,15 +1,14 @@
 export async function geocodeAddresses(addresses) {
-  const apiKey = process.env.NEXT_PUBLIC_OPENCAGE_API_KEY
-
-  const fetches = addresses.map(async (address) => {
-    const res = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${apiKey}`
-    )
-    const data = await res.json()
-    const { lat, lng } = data.results?.[0]?.geometry || {}
-    return lat && lng ? [lat, lng] : null
+  const res = await fetch('/api/gecode', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ addresses, country: 'us' }),
   })
 
-  const results = await Promise.all(fetches)
-  return results.filter(Boolean)
+  if (!res.ok) {
+    throw new Error('Geocoding request failed')
+  }
+
+  const { results } = await res.json()
+  return (results || []).filter(Boolean)
 }
