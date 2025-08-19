@@ -1,21 +1,14 @@
 // utils/fetchRoute.js
 export async function fetchRoadRoute(coords) {
-  const apiKey = process.env.NEXT_PUBLIC_ORS_API_KEY
-  const body = {
-    coordinates: coords.map(([lat, lng]) => [lng, lat]), // ORS expects [lng, lat]
-  }
-
-  const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+  // coords: [[lat, lng], ...]
+  const res = await fetch('/api/route', {
     method: 'POST',
-    headers: {
-      Authorization: apiKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coordinates: coords, profile: 'driving-car' }),
   })
 
-  const data = await res.json()
+  if (!res.ok) throw new Error('Route request failed')
 
-  const roadCoords = data.features[0].geometry.coordinates.map(([lng, lat]) => [lat, lng])
-  return roadCoords
+  const { roadCoords } = await res.json()
+  return roadCoords || []
 }
