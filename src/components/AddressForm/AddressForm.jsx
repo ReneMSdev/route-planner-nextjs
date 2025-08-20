@@ -8,6 +8,7 @@ import { Button } from '../ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
+import { getRandomDemoRoute } from '@/utils/demoAddresses'
 
 export default function AddressForm({ stops, setStops, onSubmit, onExportClick }) {
   const [routeSubmitted, setRouteSubmitted] = useState(false)
@@ -16,10 +17,19 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
   const handleSubmit = () => {
     onSubmit()
     setRouteSubmitted(true)
-
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }, 100)
+  }
+
+  const handleGenerateRandom = () => {
+    const demo = getRandomDemoRoute(5)
+    setStops(demo)
+    onSubmit(demo)
+    setRouteSubmitted(true)
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }, 100)
+    })
   }
 
   const handleAddStop = () => {
@@ -91,6 +101,13 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
           className='text-white bg-orange-400 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-orange-300'
         >
           Submit Route
+        </Button>
+
+        <Button
+          className='text-white bg-orange-400 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-orange-300'
+          onClick={handleGenerateRandom}
+        >
+          Generate Random Route
         </Button>
 
         {routeSubmitted && (

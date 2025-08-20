@@ -1,6 +1,5 @@
 'use client'
 import { useEffect } from 'react'
-
 import { MapContainer, TileLayer, Marker, useMap, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -14,27 +13,37 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon
 
 export default function MapDisplay({ coordinates, roadPolyline }) {
-  const defaultPosition = [30.2672, -97.7431] // Austin, TX as fallback
+  const defaultPosition = [37.7749, -122.4194] // SF
+
+  // ✅ return the filtered array
+  const validateLatLng = (arr = []) =>
+    arr.filter(
+      (p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
+    )
 
   function FitBounds({ coordinates }) {
     const map = useMap()
-
     useEffect(() => {
-      if (!coordinates || coordinates.length === 0) return
-
-      const bounds = L.latLngBounds(coordinates)
+      const pts = [
+        ...validateLatLng(coordinates),
+        ...validateLatLng(roadPolyline), // ✅ spread this too
+      ]
+      if (pts.length === 0) return
+      const bounds = L.latLngBounds(pts)
       map.fitBounds(bounds, { padding: [50, 50] })
-    }, [coordinates, map])
-
+    }, [coordinates, map]) // ✅ include roadPolyline
     return null
   }
+
+  const validStops = validateLatLng(coordinates)
+  const validPolyline = validateLatLng(roadPolyline)
 
   return (
     <MapContainer
       id='map'
-      center={coordinates?.[0] || defaultPosition}
+      center={validStops[0] || defaultPosition} // ✅ safe
       zoom={12}
-      scrollWheelZoom={true}
+      scrollWheelZoom
       className='w-full h-full z-0'
     >
       <TileLayer
@@ -43,13 +52,13 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
         subdomains={['a', 'b', 'c', 'd']}
         maxZoom={20}
       />
+
       <FitBounds coordinates={coordinates} />
-      {coordinates?.map((coord, idx) => {
-        if (!coord || coord.length !== 2) return null
 
+      {validStops.map((coord, idx) => {
         const label = String.fromCharCode(65 + idx)
-
-        const icon = L.divIcon({
+        const labelIcon = L.divIcon({
+          // ✅ avoid shadowing "icon" import
           className: 'custom-marker-label',
           html: `<div class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow">${label}</div>`,
           iconSize: [30, 30],
@@ -59,18 +68,15 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
           <Marker
             key={idx}
             position={coord}
-            icon={icon}
-          ></Marker>
+            icon={labelIcon}
+          />
         )
       })}
-      {roadPolyline.length > 1 && (
+
+      {validPolyline.length > 1 && (
         <Polyline
-          positions={roadPolyline}
-          pathOptions={{
-            color: 'blue',
-            weight: 6,
-            opacity: 0.6,
-          }}
+          positions={validPolyline}
+          pathOptions={{ color: 'blue', weight: 6, opacity: 0.6 }}
         />
       )}
     </MapContainer>

@@ -26,19 +26,71 @@ export default function Home() {
 
   const [showExportModal, setShowExportModal] = useState(false)
 
-  const geocodeAndSet = async () => {
-    const results = await geocodeAddresses(addresses)
-    setCoordinates(results)
+  // Accepts optional override (used by "Generate Random Route")
+  const geocodeAndSet = async (addrOverride) => {
+    try {
+      // 1) Choose input: override (random) or current state
+      const inputRaw = Array.isArray(addrOverride) ? addrOverride : addresses
 
-    const order = await optimizeRoute(results)
-    const reorderedCoords = order.map((i) => results[i])
-    const reorderedAddresses = order.map((i) => addresses[i])
+      // 2) Trim + drop empties
+      const input = inputRaw.map((a) => (a || '').trim()).filter(Boolean)
+      if (input.length < 2) {
+        alert('Please enter at least 2 addresses or generate a random route.')
+        return
+      }
 
-    setCoordinates(reorderedCoords)
-    setAddresses(reorderedAddresses)
+      // 3) Geocode (same order/length as input, may include nulls depending on your route)
+      const results = await geocodeAddresses(input)
 
-    const routedPath = await fetchRoadRoute(reorderedCoords) // use optimized order
-    setRoadPolyline(routedPath)
+      // 4) Keep only valid coords and their indices
+      const isValidPoint = (p) =>
+        Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
+      const validIdx = results.map((r, i) => (isValidPoint(r) ? i : -1)).filter((i) => i >= 0)
+
+      if (validIdx.length < 2) {
+        alert(
+          'We could not geocode at least two addresses. Try different ones or Generate Random Route.'
+        )
+        return
+      }
+
+      const validCoords = validIdx.map((i) => results[i])
+      const validAddresses = validIdx.map((i) => input[i])
+
+      // 5) Optimize order (fallback to input order if optimization fails)
+      let order
+      try {
+        order = await optimizeRoute(validCoords) // indices into validCoords
+      } catch (e) {
+        console.warn('optimizeRoute failed; falling back to input order:', e)
+        order = validCoords.map((_, i) => i)
+      }
+
+      const reorderedCoords = order.map((i) => validCoords[i])
+      const reorderedAddresses = order.map((i) => validAddresses[i])
+
+      // 6) Update UI (addresses shown in the left panel, coords for markers)
+      setAddresses(reorderedAddresses)
+      setCoordinates(reorderedCoords)
+
+      // 7) Fetch road polyline (safe-guard)
+      if (reorderedCoords.length >= 2) {
+        try {
+          const routedPath = await fetchRoadRoute(reorderedCoords)
+          setRoadPolyline(routedPath || [])
+        } catch (e) {
+          console.warn('fetchRoadRoute failed:', e)
+          setRoadPolyline([])
+        }
+      } else {
+        setRoadPolyline([])
+      }
+
+      setActiveTab('line') // keep user on the Line-by-line view
+    } catch (err) {
+      console.error(err)
+      alert('Something went wrong while building the route. Please try again.')
+    }
   }
 
   const handleFileAccepted = (file) => {

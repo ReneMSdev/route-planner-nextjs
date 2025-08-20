@@ -1,58 +1,59 @@
+// src/app/api/optimize/route.js
 import { NextResponse } from 'next/server'
 
 export async function POST(req) {
-  const key = process.env.ORS_API_KEY
-  if (!key) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
+  const ORS_KEY = process.env.ORS_API_KEY
+  if (!ORS_KEY) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
 
-  const {
-    coordinates = [],
-    profile = 'driving-car',
-    startAtFirst = true,
-  } = (await req.json()) || {}
+  let payload
+  try {
+    payload = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  const { coordinates = [], profile = 'driving-car', startAtFirst = true } = payload || {}
 
-  // coordinates expected as [[lat, lng], ...]
-  if (!Array.isArray(coordinates) || coordinates.length < 2)
-    return NextResponse.json({ error: 'Need at least 2 coordinates' }, { status: 400 })
+  const isValid = (p) =>
+    Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
+  const clean = coordinates.map((p, i) => ({ p, i })).filter(({ p }) => isValid(p))
 
-  // Build ORS Optimization payload
-  const jobs = coordinates.map(([lat, lng], i) => ({
-    id: i + 1,
-    location: [lng, lat], // ORS expects [lng, lat]
-  }))
-
-  const vehicle = {
-    id: 1,
-    profile,
-    ...(startAtFirst ? { start: jobs[0].location } : {}),
-    // Optionally add: end: jobs[jobs.length - 1].location
+  if (clean.length < 2) {
+    return NextResponse.json({ error: 'Need at least 2 valid coordinates' }, { status: 400 })
   }
 
-  const body = { jobs, vehicles: [vehicle] }
+  const jobs = clean.map(({ p: [lat, lng] }, idx) => ({ id: idx + 1, location: [lng, lat] }))
+  const vehicle = { id: 1, profile }
+  if (startAtFirst) vehicle.start = jobs[0].location
 
-  const res = await fetch('https://api.openrouteservice.org/optimization', {
+  const upstream = await fetch('https://api.openrouteservice.org/optimization', {
     method: 'POST',
-    headers: {
-      Authorization: key,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+    headers: { Authorization: ORS_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jobs, vehicles: [vehicle] }),
     cache: 'no-store',
   })
 
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '')
-    return NextResponse.json({ error: 'ORS upstream error', detail }, { status: 502 })
+  const detailText = await upstream.text().catch(() => '')
+  let detailJson = null
+  try {
+    detailJson = detailText ? JSON.parse(detailText) : null
+  } catch {}
+
+  if (!upstream.ok) {
+    // Forward the real status (401/403/429/400, etc.) and any detail
+    return NextResponse.json(
+      { error: 'ORS upstream error', detail: detailJson || detailText },
+      { status: upstream.status, headers: { 'Cache-Control': 'no-store' } }
+    )
   }
 
-  const data = await res.json()
-
-  // Extract visit order as zero-based indices
-  const stepIds =
+  const data = detailJson || {}
+  const localOrder =
     data?.routes?.[0]?.steps?.filter((s) => s.type === 'job')?.map((s) => s.job - 1) || null
-
-  if (!Array.isArray(stepIds)) {
+  if (!Array.isArray(localOrder)) {
     return NextResponse.json({ error: 'Invalid ORS response' }, { status: 502 })
   }
 
+  const idxMap = clean.map(({ i }) => i)
+  const stepIds = localOrder.map((k) => idxMap[k])
   return NextResponse.json({ stepIds }, { headers: { 'Cache-Control': 'no-store' } })
 }
