@@ -20,7 +20,7 @@ Medium
 - [ ] Race: an older, slower submit that finishes last overwrites the newer result; markers and route line can even come from different requests, and since failures now clear the route, a slow failing request can wipe a newer route (`page.js` geocodeAndSet has no request ID or abort)
 - [ ] Edits made while a submit is in flight (~5–6s) are thrown away when the result replaces `addresses` (`page.js:72`)
 - [ ] No loading or disabled state on Submit and Generate (`AddressForm.jsx:99-111`); double-clicks also double the Nominatim lookups because the cache is checked before the first request fills it
-- [ ] Unreachable stop (e.g. an island): ORS errors, the page shows markers but no route line and no message (console.warn only); `/api/optimize` forwards upstream 500 as its own status
+- [ ] Unreachable stop: when ORS can't route (e.g. an island, or a point more than 1 km from a road), the page shows markers but no route line and no message (console.warn only); `/api/optimize` forwards upstream 500 as its own status. `/api/route` now snaps up to 1 km, which fixed the Muir Woods demo stop
 - [ ] Export text says "optimized" even when optimization fell back to input order (the PDF, QR, and map now all come from the same submitted route; the form can still differ after later edits, which is expected)
 Low
 - [ ] `/api/route` returns 500 on invalid JSON, non-array coordinate entries, or a non-JSON 200; `/api/optimize` returns 500 when `coordinates` is a string or null. Return 400 instead (fold into the coordinate validation item above)
@@ -50,6 +50,7 @@ Suspected (not reproduced)
 - [ ] If traffic grows: rate limiting (Nominatim spacing and the per-IP limits) is per serverless instance, so a shared store (e.g. Upstash/Vercel KV) or Vercel Firewall rules would be needed for real guarantees
 
 ## Done recently
+- [x] Muir Woods demo stop left routes without a line in production (geocoded >350 m from a road); `/api/route` now passes `radiuses` of 1 km to ORS. All 43 demo stops route in one call (2026-10-01, uncommitted)
 - [x] Google Maps link / QR fixed (was appending the stop index to every coordinate); no QR without a route. QR decoded and opened in Google Maps as the right 5-stop route (2026-10-01, uncommitted)
 - [x] Addresses that fail to geocode are kept at the end of the list and named in an alert (shown after the route loads) instead of silently removed (2026-10-01, uncommitted)
 - [x] Export shows only while a route is on the map; a failed submit clears the old route; the PDF lists only routed stops, matching the map and QR (2026-10-01, uncommitted)

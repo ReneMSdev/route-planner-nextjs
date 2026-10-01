@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+const SNAP_RADIUS_M = 1000 // how far from each stop to look for a drivable road
+
 export async function POST(req) {
   const key = process.env.ORS_API_KEY
   if (!key) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
@@ -18,7 +20,12 @@ export async function POST(req) {
       Authorization: key,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ coordinates: orsCoords }),
+    // ORS only looks 350 m from each point for a road by default; parks and
+    // campuses (e.g. Muir Woods) geocode farther than that from a drivable road
+    body: JSON.stringify({
+      coordinates: orsCoords,
+      radiuses: orsCoords.map(() => SNAP_RADIUS_M),
+    }),
   })
 
   if (!res.ok) {
