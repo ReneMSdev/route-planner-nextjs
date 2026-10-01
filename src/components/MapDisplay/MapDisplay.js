@@ -13,7 +13,7 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon
 
 export default function MapDisplay({ coordinates, roadPolyline }) {
-  const defaultPosition = [37.7749, -122.4194] // SF
+  const defaultPosition = [37.79, -122.345] // between SF and Oakland (over the Bay Bridge)
 
   // ✅ return the filtered array
   const validateLatLng = (arr = []) =>
@@ -59,7 +59,7 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
         const labelIcon = L.divIcon({
           // ✅ avoid shadowing "icon" import
           className: 'custom-marker-label',
-          html: `<div class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow">${label}</div>`,
+          html: `<div class="bg-violet-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow">${label}</div>`,
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         })
@@ -75,7 +75,7 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
       {validPolyline.length > 1 && (
         <Polyline
           positions={validPolyline}
-          pathOptions={{ color: 'blue', weight: 6, opacity: 0.6 }}
+          pathOptions={{ color: '#7c3aed', weight: 6, opacity: 0.7 }}
         />
       )}
     </MapContainer>

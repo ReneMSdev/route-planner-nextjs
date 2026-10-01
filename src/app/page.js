@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
 import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
 import { parseFile } from '@/components/ImportForm/parseFile'
@@ -119,14 +118,10 @@ export default function Home() {
           maxSize={50}
           className='min-width-[300px]'
         >
-          <div className='h-full border-r border-gray-300 pb-6'>
-            <div className='flex justify-center items-center gap-5 bg-orange-400 py-6 px-4'>
-              <h1 className='text-3xl font-bold text-white'>Route Boss</h1>
-              <Separator
-                orientation='vertical'
-                className='bg-gray-100 h-12'
-              />
-              <p className='text-sm text-white font-semibold'>
+          <div className='h-full border-r border-violet-200 bg-violet-50 pb-6'>
+            <div className='flex flex-col justify-center items-center gap-1 bg-violet-200 py-6 px-4 text-center'>
+              <h1 className='text-3xl font-bold text-violet-900'>Route Boss</h1>
+              <p className='text-sm text-violet-800 font-semibold'>
                 Plan your optimal delivery or travel route
               </p>
             </div>

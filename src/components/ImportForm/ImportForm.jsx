@@ -39,9 +39,9 @@ export default function ImportForm({ onFileAccepted }) {
       className='mt-4'
     >
       <input {...getInputProps()} />
-      <Card className='mt-4 border-dashed border-2 border-green-500 bg-white shadow-none'>
+      <Card className='mt-4 border-dashed border-2 border-violet-300 bg-white shadow-none'>
         <CardHeader className='flex items-center justify-center'>
-          <UploadCloud className='text-green-600 text-md' />
+          <UploadCloud className='text-violet-600 text-md' />
         </CardHeader>
 
         <CardContent className='text-center space-y-2'>
@@ -52,7 +52,7 @@ export default function ImportForm({ onFileAccepted }) {
             type='button'
             variant='outline'
             onClick={openFileDialog}
-            className='text-green-600 border-green-600 hover:bg-green-50'
+            className='text-violet-700 border-violet-600 hover:bg-violet-50'
           >
             Browse files
           </Button>
