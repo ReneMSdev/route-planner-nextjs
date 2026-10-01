@@ -1,6 +1,8 @@
 # TODO
 
-## Now
+## Now (v1.1.0)
+- [ ] Get the app working again on a free API. The current API isn't working (reported by the user 2026-09-30). First find out which service is failing (OpenCage, ORS, or both) and why, then choose a free replacement and switch the server routes in `src/app/api/` to it
+- [ ] Make the app mobile responsive
 - [ ] Fix the README: env var names (`OPENCAGE_API_KEY`, `ORS_API_KEY`), Next.js version, and remove html2canvas; also fix typos ("impor", "Real-timme", "form", "Goolgle Mpaps")
 
 ## Next

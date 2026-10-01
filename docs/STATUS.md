@@ -2,7 +2,7 @@
 
 _Last verified: 2026-09-30 at 3c3803c_
 
-Portfolio/demo app, live on Vercel. All the main features are in place. The
+Portfolio/demo app, live on Vercel, released as v1.0.0. All the main features are in place, but the app currently doesn't work because its API is down (see Known issues). Next up is v1.1.0: a free replacement API and mobile layout. The
 latest work (Aug 2025) moved the external API calls into server routes and added
 a random demo route; in Jan 2026 Next was bumped to 15.3.8 for the RSC CVE fix.
 There are no automated tests, so lint and build are the only checks.
@@ -24,6 +24,9 @@ and `ORS_API_KEY`.
 | Production deploy | **unverified** | The Vercel URL wasn't checked this session |
 
 **Known issues:**
+- The app isn't working because its external API has stopped working (reported
+  by the user 2026-09-30). Which service fails, and why, hasn't been diagnosed yet.
+- Not mobile responsive (per the user).
 - README is stale: it gives `NEXT_PUBLIC_*` env var names (the code uses
   `OPENCAGE_API_KEY` and `ORS_API_KEY`), says "Next.js 13", and lists
   html2canvas, which isn't a dependency.
