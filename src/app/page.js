@@ -97,12 +97,16 @@ export default function Home() {
       const validAddresses = validIdx.map((i) => input[i])
       const notFound = input.filter((_, i) => !isValidPoint(results[i]))
 
+      // Problems worth telling the user about even though a route is shown
+      const warnings = []
+
       // 5) Optimize order (fallback to input order if optimization fails)
       let order
       try {
         order = await optimizeRoute(validCoords) // indices into validCoords
       } catch (e) {
         console.warn('optimizeRoute failed; falling back to input order:', e)
+        if (e.userMessage) warnings.push(`Stops are in your original order. ${e.userMessage}`)
         order = validCoords.map((_, i) => i)
       }
 
@@ -122,6 +126,7 @@ export default function Home() {
           setRoadPolyline(routedPath || [])
         } catch (e) {
           console.warn('fetchRoadRoute failed:', e)
+          if (e.userMessage) warnings.push(`The road route couldn't be drawn. ${e.userMessage}`)
           setRoadPolyline([])
         }
       } else {
@@ -132,16 +137,15 @@ export default function Home() {
 
       // Shown after the route is drawn, so it doesn't hold up the route request
       if (notFound.length > 0) {
-        return {
-          ok: true,
-          message: `We couldn't find ${notFound.length === 1 ? 'this address' : 'these addresses'}, so ${
+        warnings.unshift(
+          `We couldn't find ${notFound.length === 1 ? 'this address' : 'these addresses'}, so ${
             notFound.length === 1 ? "it isn't" : "they aren't"
           } on the map:\n\n${notFound.join('\n')}\n\n${
             notFound.length === 1 ? "It's" : "They're"
-          } kept at the end of your list so you can edit and resubmit.`,
-        }
+          } kept at the end of your list so you can edit and resubmit.`
+        )
       }
-      return { ok: true }
+      return warnings.length > 0 ? { ok: true, message: warnings.join('\n\n') } : { ok: true }
     } catch (err) {
       console.error(err)
       clearRoute()

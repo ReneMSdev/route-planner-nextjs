@@ -1,8 +1,12 @@
 // src/app/api/optimize/route.js
 import { NextResponse } from 'next/server'
 import { parseRouteInput } from '@/lib/routeInput'
+import { guardRequest, isOrsQuotaError, ORS_QUOTA_MESSAGE } from '@/lib/apiGuard'
 
 export async function POST(req) {
+  const refused = guardRequest(req, 'optimize')
+  if (refused) return refused
+
   const ORS_KEY = process.env.ORS_API_KEY
   if (!ORS_KEY) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
 
@@ -37,10 +41,16 @@ export async function POST(req) {
   } catch {}
 
   if (!upstream.ok) {
-    // Forward the real status (401/403/429/400, etc.) and any detail
+    if (isOrsQuotaError(upstream.status)) {
+      console.error('ORS optimization refused', upstream.status, detailText.slice(0, 500))
+      return NextResponse.json(
+        { error: ORS_QUOTA_MESSAGE },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } }
+      )
+    }
     return NextResponse.json(
       { error: 'ORS upstream error', detail: detailJson || detailText },
-      { status: upstream.status, headers: { 'Cache-Control': 'no-store' } }
+      { status: 502, headers: { 'Cache-Control': 'no-store' } }
     )
   }
 

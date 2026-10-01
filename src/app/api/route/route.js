@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
 import { parseRouteInput } from '@/lib/routeInput'
+import { guardRequest, isOrsQuotaError, ORS_QUOTA_MESSAGE } from '@/lib/apiGuard'
 
 const SNAP_RADIUS_M = 1000 // how far from each stop to look for a drivable road
 
 export async function POST(req) {
+  const refused = guardRequest(req, 'route')
+  if (refused) return refused
+
   const key = process.env.ORS_API_KEY
   if (!key) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
 
@@ -35,6 +39,14 @@ export async function POST(req) {
   })
 
   if (!res.ok) {
+    if (isOrsQuotaError(res.status)) {
+      const text = await res.text().catch(() => '')
+      console.error('ORS directions refused', res.status, text.slice(0, 500))
+      return NextResponse.json(
+        { error: ORS_QUOTA_MESSAGE },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } }
+      )
+    }
     const text = await res.text().catch(() => '')
     return NextResponse.json({ error: 'ORS upstream error', detail: text }, { status: 502 })
   }
