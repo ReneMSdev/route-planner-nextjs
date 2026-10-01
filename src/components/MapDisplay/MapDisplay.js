@@ -12,29 +12,26 @@ let DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
+const defaultPosition = [37.79, -122.345] // between SF and Oakland (over the Bay Bridge)
+
+const validateLatLng = (arr = []) =>
+  arr.filter(
+    (p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
+  )
+
+// Defined at module level so it isn't remounted on every render. It refits only
+// when a new route arrives, not when the user is zooming or typing.
+function FitBounds({ coordinates, roadPolyline }) {
+  const map = useMap()
+  useEffect(() => {
+    const pts = [...validateLatLng(coordinates), ...validateLatLng(roadPolyline)]
+    if (pts.length === 0) return
+    map.fitBounds(L.latLngBounds(pts), { padding: [50, 50] })
+  }, [coordinates, roadPolyline, map])
+  return null
+}
+
 export default function MapDisplay({ coordinates, roadPolyline }) {
-  const defaultPosition = [37.79, -122.345] // between SF and Oakland (over the Bay Bridge)
-
-  // ✅ return the filtered array
-  const validateLatLng = (arr = []) =>
-    arr.filter(
-      (p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
-    )
-
-  function FitBounds({ coordinates }) {
-    const map = useMap()
-    useEffect(() => {
-      const pts = [
-        ...validateLatLng(coordinates),
-        ...validateLatLng(roadPolyline), // ✅ spread this too
-      ]
-      if (pts.length === 0) return
-      const bounds = L.latLngBounds(pts)
-      map.fitBounds(bounds, { padding: [50, 50] })
-    }, [coordinates, map]) // ✅ include roadPolyline
-    return null
-  }
-
   const validStops = validateLatLng(coordinates)
   const validPolyline = validateLatLng(roadPolyline)
 
@@ -52,7 +49,10 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
         maxZoom={19}
       />
 
-      <FitBounds coordinates={coordinates} />
+      <FitBounds
+        coordinates={coordinates}
+        roadPolyline={roadPolyline}
+      />
 
       {validStops.map((coord, idx) => {
         const label = String.fromCharCode(65 + idx)

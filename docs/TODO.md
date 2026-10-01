@@ -16,28 +16,19 @@
 - [ ] Confirm the ORS plan quotas and whether keys expire in the HeiGIT dashboard (daily figures came from search results; the plans page couldn't be read, and no expiry policy was found in the docs, 2026-10-01)
 
 ## Bugs (found in the 2026-10-01 bug hunt; checked by the verifier subagent against 89fc4ee)
-High
-- [ ] Google Maps link / QR is wrong for every route: `generateGoogleMapsUrl.js:3` uses `.map((lat, lng) => …)`, which receives (point, index), so URLs come out as `…/dir/37.79,-122.39,0/37.80,-122.40,1`. With no route it returns a non-empty base URL, so the QR always renders
 Medium
-- [ ] Race: an older, slower submit that finishes last overwrites the newer result; markers and route line can even come from different requests (`page.js` geocodeAndSet has no request ID or abort)
+- [ ] Race: an older, slower submit that finishes last overwrites the newer result; markers and route line can even come from different requests, and since failures now clear the route, a slow failing request can wipe a newer route (`page.js` geocodeAndSet has no request ID or abort)
 - [ ] Edits made while a submit is in flight (~5–6s) are thrown away when the result replaces `addresses` (`page.js:72`)
 - [ ] No loading or disabled state on Submit and Generate (`AddressForm.jsx:99-111`); double-clicks also double the Nominatim lookups because the cache is checked before the first request fills it
-- [ ] Addresses that fail to geocode are silently removed from the user's list (`page.js:56-72`); show which ones failed and keep them
-- [ ] Export Route appears even when the submit failed (`routeSubmitted` is set without awaiting `onSubmit`), so it offers a QR for an empty or previous route and a PDF of unrouted addresses
-- [ ] Map jumps back to the route on any re-render, e.g. typing one character after zooming out: `FitBounds` is defined inside `MapDisplay` so it remounts and refits every render
 - [ ] Unreachable stop (e.g. an island): ORS errors, the page shows markers but no route line and no message (console.warn only); `/api/optimize` forwards upstream 500 as its own status
-- [ ] Import needs exact, case-sensitive `Street`, `City`, `State`, `Zip` headers; anything else (lowercase, spaces, a single `Address` column) yields nothing and the page silently does nothing. The UI doesn't say which columns are required, and rejected files (wrong type, over 1 MB) give no feedback either
-- [ ] PDF, QR, and map get out of sync: the PDF uses the current address list, the QR uses submitted coordinates; edits after a submit, or a later failed submit, leave them showing different routes. The PDF also prints blank stops and says "optimized" even when optimization fell back
+- [ ] Export text says "optimized" even when optimization fell back to input order (the PDF, QR, and map now all come from the same submitted route; the form can still differ after later edits, which is expected)
 Low
 - [ ] `/api/route` returns 500 on invalid JSON, non-array coordinate entries, or a non-JSON 200; `/api/optimize` returns 500 when `coordinates` is a string or null. Return 400 instead (fold into the coordinate validation item above)
-- [ ] An empty or corrupt XLSX makes `parseFile` throw, and `page.js` doesn't await or catch it (unhandled rejection)
-- [ ] XLSX number-formatted ZIPs lose leading zeros (02139 → 2139); CSV is fine
 - [ ] The form allows unlimited stops but geocode rejects more than 25 only at submit; stops 27+ are labelled `[`, `\` in the form and PDF. Cap stops at 25 in the form and import
 - [ ] PDF: no line wrapping or pagination (lines from about stop 34 fall off the page); the `mapElementId` parameter is unused
 - [ ] `handleAddStop` and `handleAddressChange` build state from the closure instead of a functional updater (`AddressForm.jsx:35-47`); same-render updates are lost
 - [ ] `handleDragEnd` reads `over.id` without optional chaining (`AddressForm.jsx:53`); throws if a drag ends with no target
 - [ ] Class typos: `min-width-[300px]` → `min-w-[300px]` (`page.js:119`), `text-muted-forground` → `text-muted-foreground` (`ExportModal.jsx:63`)
-- [ ] Cosmetic: swapped `setTimeout` / `scrollIntoView` arguments in `handleGenerateRandom` (`AddressForm.jsx:30-32`)
 Suspected (not reproduced)
 - [ ] `/api/optimize` ignores ORS `unassigned` jobs, which would silently drop stops; not triggered by an unreachable point (ORS errored instead)
 - [ ] Google Maps `/dir/` links may be cut to about 10 stops on mobile, and a 25-stop URL makes a dense QR at 200 px
@@ -59,4 +50,9 @@ Suspected (not reproduced)
 - [ ] If traffic grows: rate limiting (Nominatim spacing and the per-IP limits) is per serverless instance, so a shared store (e.g. Upstash/Vercel KV) or Vercel Firewall rules would be needed for real guarantees
 
 ## Done recently
+- [x] Google Maps link / QR fixed (was appending the stop index to every coordinate); no QR without a route. QR decoded and opened in Google Maps as the right 5-stop route (2026-10-01, uncommitted)
+- [x] Addresses that fail to geocode are kept at the end of the list and named in an alert (shown after the route loads) instead of silently removed (2026-10-01, uncommitted)
+- [x] Export shows only while a route is on the map; a failed submit clears the old route; the PDF lists only routed stops, matching the map and QR (2026-10-01, uncommitted)
+- [x] Map no longer jumps back to the route on unrelated re-renders such as typing; new routes still fit. Also fixed the swapped scroll timer arguments in Generate (2026-10-01, uncommitted)
+- [x] Import: case/space-insensitive headers with aliases, a single Address column or Street + City (State/Zip optional), full addresses in an Address column not duplicated, numeric XLSX ZIPs zero-padded, empty/corrupt files handled, a message when nothing is found or a file is rejected, and a column hint in the UI (2026-10-01, uncommitted)
 - [x] Get the app working again on a free API: geocoding moved from OpenCage to Nominatim, map tiles from CARTO to OSM; ORS kept (working locally 2026-10-01, 8c09f57)

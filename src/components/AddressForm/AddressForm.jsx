@@ -2,7 +2,7 @@
 
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import AddressField from './AddressField'
 import { Button } from '../ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -10,26 +10,25 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
 import { getRandomDemoRoute } from '@/utils/demoAddresses'
 
-export default function AddressForm({ stops, setStops, onSubmit, onExportClick }) {
-  const [routeSubmitted, setRouteSubmitted] = useState(false)
+export default function AddressForm({ stops, setStops, onSubmit, onExportClick, canExport }) {
   const bottomRef = useRef(null)
 
-  const handleSubmit = () => {
-    onSubmit()
-    setRouteSubmitted(true)
+  // Scroll the Export button into view, but only once a route was actually drawn
+  const scrollToExport = (ok) => {
+    if (!ok) return
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }, 100)
   }
 
-  const handleGenerateRandom = () => {
+  const handleSubmit = async () => {
+    scrollToExport(await onSubmit())
+  }
+
+  const handleGenerateRandom = async () => {
     const demo = getRandomDemoRoute(5)
     setStops(demo)
-    onSubmit(demo)
-    setRouteSubmitted(true)
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }, 100)
-    })
+    scrollToExport(await onSubmit(demo))
   }
 
   const handleAddStop = () => {
@@ -110,7 +109,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
           Generate Random Route
         </Button>
 
-        {routeSubmitted && (
+        {canExport && (
           <div
             className='mt-4 text-center'
             ref={bottomRef}

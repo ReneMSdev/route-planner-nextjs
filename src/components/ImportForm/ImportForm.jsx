@@ -16,6 +16,10 @@ export default function ImportForm({ onFileAccepted }) {
     [onFileAccepted]
   )
 
+  const onDropRejected = useCallback(() => {
+    alert('That file was not accepted. Use a CSV, XLS, or XLSX file under 1 MB.')
+  }, [])
+
   const {
     getRootProps,
     getInputProps,
@@ -23,6 +27,7 @@ export default function ImportForm({ onFileAccepted }) {
     open: openFileDialog,
   } = useDropzone({
     onDrop,
+    onDropRejected,
     noClick: true,
     noKeyboard: true,
     accept: {
@@ -58,6 +63,9 @@ export default function ImportForm({ onFileAccepted }) {
           </Button>
 
           <p className='text-xs text-muted-foreground'>Files supported: XLS, XLSX, CSV</p>
+          <p className='text-xs text-muted-foreground'>
+            Columns: Address, or Street + City (State and Zip optional)
+          </p>
           <p className='text-xs text-muted-foreground'>Size limit: 1 MB</p>
         </CardContent>
       </Card>
