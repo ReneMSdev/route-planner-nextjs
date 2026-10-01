@@ -1,5 +1,6 @@
 // src/app/api/optimize/route.js
 import { NextResponse } from 'next/server'
+import { parseRouteInput } from '@/lib/routeInput'
 
 export async function POST(req) {
   const ORS_KEY = process.env.ORS_API_KEY
@@ -11,15 +12,12 @@ export async function POST(req) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
-  const { coordinates = [], profile = 'driving-car', startAtFirst = true } = payload || {}
+  const input = parseRouteInput(payload)
+  if (input.error) return NextResponse.json({ error: input.error }, { status: 400 })
+  const { coordinates, profile } = input
+  const startAtFirst = payload.startAtFirst !== false
 
-  const isValid = (p) =>
-    Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
-  const clean = coordinates.map((p, i) => ({ p, i })).filter(({ p }) => isValid(p))
-
-  if (clean.length < 2) {
-    return NextResponse.json({ error: 'Need at least 2 valid coordinates' }, { status: 400 })
-  }
+  const clean = coordinates.map((p, i) => ({ p, i }))
 
   const jobs = clean.map(({ p: [lat, lng] }, idx) => ({ id: idx + 1, location: [lng, lat] }))
   const vehicle = { id: 1, profile }

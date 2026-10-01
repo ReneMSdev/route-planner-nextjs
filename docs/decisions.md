@@ -67,3 +67,28 @@ free and keyless, and a portfolio demo's volume fits its 1 request/second limit.
 Trade-offs: the limit is per server instance (not coordinated across Vercel
 instances), a 25-address route takes about 30s to geocode, and the policy forbids
 autocomplete, so `/api/autocomplete` can't move to it.
+
+## 2026-10-01: Snap route stops to roads up to 1 km away
+
+**Decision:** `/api/route` sends `radiuses` of 1,000 m per stop to ORS
+directions (ORS's default search radius is 350 m).
+**Alternatives:** Replacing only the Muir Woods demo address with one next to
+its parking lot (two candidates weren't found by Nominatim); an unlimited radius
+(`-1`).
+**Why:** A production smoke test found routes with no line whenever the random
+route picked Muir Woods: it geocodes about 800 m into the forest, and ORS
+returned "Could not find routable point within a radius of 350.0 meters". The
+radius also covers user-entered addresses in parks and campuses. 1 km rather
+than unlimited so a point far from any road (e.g. an island) still fails instead
+of snapping to a distant, misleading road. With 1 km, all 43 demo stops route in
+one call.
+
+## 2026-10-01: Keep standard OSM tiles rather than a cleaner style for now
+
+**Decision:** Stay on `tile.openstreetmap.org` tiles (see the CARTO → OSM entry above).
+**Alternatives:** Stadia Maps "Alidade Smooth" (cleaner; free account, domain
+registration instead of a key in the URL; served 200 on localhost and 401 on the
+Vercel domain until registered); OpenFreeMap "Positron" (free and keyless, but
+vector tiles needing MapLibre and a Leaflet plugin).
+**Why:** The user chose to keep it as is for now. Stadia is the smallest change
+if a cleaner look is wanted later.
