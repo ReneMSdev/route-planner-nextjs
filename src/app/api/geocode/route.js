@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { guardRequest } from '@/lib/apiGuard'
 
 // Nominatim (OpenStreetMap) usage policy: max 1 request/second, an identifying
 // User-Agent, and cache results. https://operations.osmfoundation.org/policies/nominatim/
@@ -55,6 +56,9 @@ async function geocodeOne(q, country) {
 }
 
 export async function POST(req) {
+  const refused = guardRequest(req, 'geocode')
+  if (refused) return refused
+
   let payload
   try {
     payload = await req.json()

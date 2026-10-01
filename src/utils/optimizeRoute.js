@@ -18,7 +18,10 @@ export async function optimizeRoute(
 
   if (!res.ok) {
     const msg = json?.error || json?.detail || text || 'Unknown error'
-    throw new Error(`Optimization request failed (${res.status}) ${msg}`.trim())
+    const err = new Error(`Optimization request failed (${res.status}) ${msg}`.trim())
+    // Rate limit (429) and ORS quota (503) messages are written for the user
+    if (res.status === 429 || res.status === 503) err.userMessage = json?.error
+    throw err
   }
 
   const { stepIds } = json || {}

@@ -2,7 +2,7 @@
 
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import AddressField from './AddressField'
 import { Button } from '../ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -10,8 +10,31 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
 import { getRandomDemoRoute } from '@/utils/demoAddresses'
 
-export default function AddressForm({ stops, setStops, onSubmit, onExportClick, canExport }) {
+export default function AddressForm({
+  stops,
+  setStops,
+  onSubmit,
+  onExportClick,
+  canExport,
+  loading,
+}) {
   const bottomRef = useRef(null)
+  // Which button started the current request, so only that one says "Loading...".
+  // The ref stops a second click (before the re-render) from resetting it.
+  const [pending, setPending] = useState(null)
+  const pendingRef = useRef(null)
+
+  const run = async (which, addrOverride) => {
+    if (loading || pendingRef.current) return
+    pendingRef.current = which
+    setPending(which)
+    try {
+      scrollToExport(await onSubmit(addrOverride))
+    } finally {
+      pendingRef.current = null
+      setPending(null)
+    }
+  }
 
   // Scroll the Export button into view, but only once a route was actually drawn
   const scrollToExport = (ok) => {
@@ -21,17 +44,17 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick, 
     }, 100)
   }
 
-  const handleSubmit = async () => {
-    scrollToExport(await onSubmit())
-  }
+  const handleSubmit = () => run('submit')
 
-  const handleGenerateRandom = async () => {
+  const handleGenerateRandom = () => {
+    if (loading || pendingRef.current) return
     const demo = getRandomDemoRoute(5)
     setStops(demo)
-    scrollToExport(await onSubmit(demo))
+    run('generate', demo)
   }
 
   const handleAddStop = () => {
+    if (loading) return
     setStops([...stops, ''])
   }
 
@@ -80,6 +103,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick, 
                 onChange={(val) => handleAddressChange(i, val)}
                 onRemove={() => handleRemoveStop(i)}
                 canRemove={stops.length > 2}
+                disabled={loading}
               />
             ))}
           </SortableContext>
@@ -87,7 +111,10 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick, 
 
         <div
           onClick={handleAddStop}
-          className='flex gap-2 items-center font-semibold text-sm text-gray-700 hover:cursor-pointer hover:text-violet-600'
+          aria-disabled={loading}
+          className={`flex gap-2 items-center font-semibold text-sm text-gray-700 ${
+            loading ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer hover:text-violet-600'
+          }`}
         >
           <FaPlus />
           <p>Add another stop</p>
@@ -97,16 +124,24 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick, 
 
         <Button
           onClick={handleSubmit}
-          className='text-white bg-violet-600 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-violet-700'
+          disabled={loading}
+          aria-busy={loading && pending === 'submit'}
+          className={`text-white bg-violet-600 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-violet-700 ${
+            pending === 'submit' ? 'disabled:opacity-90' : ''
+          }`}
         >
-          Submit Route
+          {loading && pending === 'submit' ? 'Loading...' : 'Submit Route'}
         </Button>
 
         <Button
-          className='text-white bg-linear-to-r from-violet-600 to-fuchsia-600 cursor-pointer w-full max-w-[280px] mx-auto block shadow-md shadow-fuchsia-200 hover:from-violet-700 hover:to-fuchsia-700'
+          className={`text-white bg-linear-to-r from-violet-600 to-fuchsia-600 cursor-pointer w-full max-w-[280px] mx-auto block shadow-md shadow-fuchsia-200 hover:from-violet-700 hover:to-fuchsia-700 ${
+            pending === 'generate' ? 'disabled:opacity-90' : ''
+          }`}
           onClick={handleGenerateRandom}
+          disabled={loading}
+          aria-busy={loading && pending === 'generate'}
         >
-          Generate Random Route
+          {loading && pending === 'generate' ? 'Loading...' : 'Generate Random Route'}
         </Button>
 
         {canExport && (
@@ -117,6 +152,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick, 
             <Button
               className='w-full max-w-[280px] bg-white text-violet-700 border border-violet-300 hover:bg-violet-100 cursor-pointer'
               onClick={onExportClick}
+              disabled={loading}
             >
               Export Route
             </Button>
