@@ -1,56 +1,64 @@
 # Status
 
-_Last verified: 2026-10-01 at 0262200 + uncommitted changes_
+_Last verified: 2026-10-01 at aa5a0b5 (`working`; `main` is ccc80d3 with the same tree)_
 
-Portfolio/demo app, live on Vercel, released as v1.0.0. v1.1.0 is in progress.
-Its first part is working locally but not yet committed or deployed: geocoding
-moved from OpenCage (key rejected) to Nominatim, and map tiles moved from CARTO
-(now requires a key) to OpenStreetMap. Neither needs an API key. Mobile layout is
-the remaining v1.1.0 item. The live Vercel deploy still runs the old code, so
-geocoding and the map are broken there until this ships.
-There are no automated tests, so lint, build, and manual browser checks are the
-only checks.
+Portfolio/demo app, live on Vercel. It works again in production: geocoding
+moved from OpenCage (key rejected) to Nominatim, and map tiles from CARTO (now
+requires a key) to OpenStreetMap; neither needs a key. ORS still handles
+optimization and road routes. This session also added a light purple theme,
+rebalanced the demo addresses, and fixed the bugs a bug hunt found that a visitor
+would most likely hit. v1.1.0 isn't tagged yet; mobile layout is the main item left.
+Production deploys from `main` (Vercel Production); pushes to `working` get
+Preview deploys. There are no automated tests, so lint, build, offline scripts,
+and manual browser checks are the checks.
 
 ## App
 
 **State:** single page with manual and file-import (CSV/XLS/XLSX) address
-entry, geocoding (Nominatim/OpenStreetMap, no key), route optimization and road
-polyline (ORS), a Leaflet map on OSM tiles with A–Z markers, and PDF/QR export.
-API routes in `src/app/api/` proxy the external services. The only key is the
-server-side `ORS_API_KEY`. `/api/autocomplete` still targets OpenCage, but nothing
-calls it.
+entry, geocoding (Nominatim, no key), route optimization and road polyline (ORS,
+server-side `ORS_API_KEY`), a Leaflet map on OSM tiles with A–Z markers, and
+PDF/QR export. API routes in `src/app/api/` proxy the external services.
+`/api/autocomplete` still targets OpenCage, but nothing calls it.
 
-`/api/geocode` follows Nominatim's usage policy per server instance: sequential
-lookups at least 1.1s apart (the slot is reserved before waiting, so concurrent
-requests queue), an identifying User-Agent, an in-memory cache, and at most 25
-addresses per request. When the lookup fails it returns a 502 with a message the
-page shows in its alert. It no longer returns `{"results":[null]}` with a 200.
+- `/api/geocode` follows Nominatim's usage policy per server instance: lookups
+  at least 1.1 s apart (slots reserved so concurrent requests queue), an
+  identifying User-Agent, an in-memory cache, and at most 25 addresses per
+  request. Failures return a 502 with a message the page shows.
+- `/api/route` asks ORS to snap each stop to a road up to 1 km away (ORS's
+  default is 350 m), so stops in parks such as Muir Woods still get a route line.
+- Addresses that can't be found stay at the end of the list and are named in an
+  alert. Export appears only while stops are on the map (it's gated on the markers, not the route line), a failed submit clears
+  the old route, and the PDF and the Google Maps QR both use the routed stops.
+- Import accepts an Address column or Street + City (State and Zip optional),
+  matches headers ignoring case, spaces, dashes, and underscores, and tells the user when a file
+  yields nothing or is rejected.
+- The 43 demo addresses (20 SF, 19 East Bay, 4 Marin) all geocoded to the
+  expected place and all routed in one ORS call when checked on 2026-10-01 (see the table).
+  OSM data can change, so this is a point-in-time result.
 
 | Check | Result | Evidence |
 |---|---|---|
-| Lint | passing | `npm run lint`: "No ESLint warnings or errors" (0262200 + uncommitted, 2026-10-01) |
-| Build | passing | `next build` in a scratch copy of the working tree (the dev server was using `.next`): compiled, 8/8 static pages (0262200 + uncommitted, 2026-10-01) |
-| Geocode → optimize → route → map (local) | working | Claude in Chrome on localhost:3000, 2026-10-01: two SF addresses geocoded correctly, `/api/geocode`, `/api/optimize`, `/api/route` all 200, A/B markers and route line drawn on OSM tiles. Ran before the rate-limiter fix, which only changes the timing of concurrent requests. The first submit hadn't rendered after ~9s (cause unknown); the second worked |
-| Geocode rate limiter | logic checked | Offline Node test with mocked fetch: 3 concurrent requests × 2 addresses → 6 calls, gaps 1098–1101 ms (2026-10-01). Not tested against Nominatim under real concurrency |
-| npm audit | 4 remaining (3 high, 1 moderate) | `npm audit`, 2026-09-30, down from 22. Remaining: `xlsx` (no npm fix), `postcss` bundled in `next` (fixed only in Next 16), and `brace-expansion` (eslint dev tooling only) |
-| PDF export library | partly verified | jsPDF 4.2.1 in Node produced a valid PDF using the app's calls (2026-09-30). In-browser download **unverified** |
-| Export, file import, 3+ stops | **unverified** | Not exercised in the browser test |
-| Tests | none | No test suite exists |
-| Production deploy | **broken / unverified** | Still runs the pre-fix code (OpenCage + CARTO). Not checked after these changes, which aren't deployed |
+| Lint | passing | `npm run lint`: "No ESLint warnings or errors" (aa5a0b5, 2026-10-01) |
+| Build | passing | `next build` in a scratch copy of the tree (the dev server was using `.next`): compiled, 8/8 static pages, `/` First Load JS 444 kB (aa5a0b5, 2026-10-01) |
+| Production smoke test | passing | Claude in Chrome on route-planner-nextjs.vercel.app (ccc80d3, 2026-10-01): Twin Peaks → Muir Woods → Sausalito; geocode, optimize, route all 200; 3 markers and a road route line; Export appeared after the route. An earlier run on 1877e57 found the Muir Woods 502 that ccc80d3 fixed |
+| Bug fixes (QR link, unfound addresses, stale Export, map snap-back, import) | verified | Each original repro rerun in Chrome against localhost with faked API responses; QR decoded with BarcodeDetector and opened in Google Maps as the right 5-stop route; the generated PDF captured in the page listed only routed stops; two verifier passes confirmed the fixes (90d43ae, 2026-10-01) |
+| Import parser and Maps URL helper | passing | Offline Node scripts against the real modules: 36/36 cases (CSV variants, XLSX via the real `parseFile`, empty/corrupt files, URL helper) (90d43ae, 2026-10-01). Scripts live in the session scratchpad, not the repo |
+| Demo addresses | verified | All 43 geocoded to the expected place (the 6 entries corrected during the check landed ≤0.1 km from the real spot), and one ORS directions call through all 43 returned 200 (aa5a0b5, 2026-10-01) |
+| Geocode rate limiter | logic checked | Offline Node test with a mocked fetch: 3 concurrent requests → 6 calls 1098–1101 ms apart (2026-10-01). Not tested against Nominatim under real concurrency |
+| npm audit | 4 remaining (3 high, 1 moderate) | `npm audit`, 2026-09-30. Dependencies unchanged since (0262200). Remaining: `xlsx` (no npm fix), `postcss` bundled in `next` (fixed only in Next 16), `brace-expansion` (eslint dev tooling) |
+| PDF download | partly verified | The generated PDF's contents were checked in the browser (download intercepted). Opening a downloaded file wasn't checked |
+| Tests | none | No test suite in the repo |
 
-**Known issues:**
-- No timeout on outgoing calls to ORS (`/api/optimize`, `/api/route`) or Nominatim
-  (`/api/geocode`). A hung upstream leaves the page waiting with no error.
-- The geocode rate limit and cache are per server instance. Parallel Vercel
-  instances can together exceed 1 request/second. The cache has no size limit or
-  TTL, and a 200 with unparseable JSON is cached as "not found".
-- The `/api/geocode` 502 body includes the upstream status and up to 500 chars
-  of Nominatim's response.
+**Known issues** (details and the full list in `docs/TODO.md` under "Bugs" and "Abuse protection"):
+- Security: `/api/route` puts the request's `profile` straight into the ORS URL path, so a caller can reach other ORS endpoints with the server key. Coordinates aren't capped or validated in `/api/route` and `/api/optimize`.
+- No abuse protection: no rate limiting or origin check on the API routes, and the ORS free quota is small (about 500 optimizations/day per search results; not confirmed in the dashboard).
+- Submits can race: there's no loading state, and a slower earlier submit can overwrite or clear a newer route. Edits made during a submit are lost.
+- If any stop is more than 1 km from a road (e.g. an island), ORS fails the whole route: all markers show but there's no route line at all, and no message.
+- No timeouts on outgoing ORS or Nominatim calls.
 - Not mobile responsive (per the user).
-- README is stale: it describes OpenCage and `NEXT_PUBLIC_*` env var names, says
-  "Next.js 13", and lists html2canvas, which isn't a dependency.
+- README is stale (OpenCage, `NEXT_PUBLIC_*` names, "Next.js 13", html2canvas).
 - `next lint` is deprecated and will be removed in Next 16.
-- Local builds warn about a stray `~/package-lock.json` that Next picks up as the workspace root. This doesn't affect Vercel.
+- Local builds warn about a stray `~/package-lock.json` that Next picks up as the workspace root. Doesn't affect Vercel.
 
 <!--
 Rules for this file:
