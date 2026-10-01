@@ -1,7 +1,7 @@
 # TODO
 
 ## Now (v1.1.0)
-- [ ] Deploy the loading state and abuse protection (merge `working` into `main`) and smoke-test production, including that real browsers pass the origin check behind Vercel's headers
+- [ ] **Next session: smoke-test production.** `working` was merged into `main` on 2026-10-01 without a production check (loading state, abuse protection, docs, new screenshot). On https://route-planner-nextjs.vercel.app: run one Generate Random Route (route line drawn, spinner and "Loading..." while it runs), confirm real browsers pass the origin check behind Vercel's headers (no 403s), confirm a request with a foreign Origin gets 403, and check the Vercel status for the merge commit
 - [ ] Make the app mobile responsive
 - [ ] Tag v1.1.0 after the mobile layout ships (`npm version minor`, then push the commit and the `v1.1.0` tag). Production has run untagged changes since v1.0.0: Nominatim/OSM switch, purple theme, bug fixes, input validation
 - [ ] Add timeouts (AbortController; ORS optimize once took 15.2 s on 2026-10-01) to the outgoing ORS calls in `/api/optimize` and `/api/route` and the Nominatim call in `/api/geocode`, returning a clear error instead of hanging
@@ -37,7 +37,7 @@ Suspected (not reproduced)
 - [ ] Move from `next lint` to the ESLint CLI (`next lint` is removed in Next 16)
 
 ## Later
-- [ ] Replace the README screenshot (it shows the old orange theme) and add a `LICENSE` file if MIT is intended (the README says MIT; there's no LICENSE file)
+- [ ] Add a `LICENSE` file if MIT is intended (the README says MIT; there's no LICENSE file)
 - [ ] Upgrade to Next 16 (clears the `postcss` advisory bundled in Next)
 - [ ] Smoke-test the live Vercel deployment after deploys
 - [ ] Look at the size of the `/` page bundle (First Load JS 444 kB at aa5a0b5)

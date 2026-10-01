@@ -1,4 +1,4 @@
-![routeplanner1](https://github.com/user-attachments/assets/7ab3f34c-783f-4697-8b74-1772fe65748f)
+![Route Boss showing a five-stop random route from Berkeley across the Bay Bridge to San Francisco, with stops labeled A to E on an OpenStreetMap map](docs/images/route-boss.webp)
 
 # Route Boss
 

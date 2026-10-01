@@ -1,6 +1,6 @@
 # Status
 
-_Last verified: 2026-10-01 at 1ae54d7 (`working`). Production runs `main` at 8d1e8f6, which doesn't yet include the loading state (e683523) or abuse protection (1ae54d7)._
+_Last verified: 2026-10-01 at 1ae54d7 (`working`). `working` was then merged into `main` (loading state, abuse protection, docs, screenshot) and deployed **without a production smoke test**; the last production check was on 8d1e8f6. See TODO._
 
 Portfolio/demo app, live on Vercel. Geocoding uses Nominatim and map tiles use
 OpenStreetMap, neither with a key; OpenRouteService (ORS) handles optimization
@@ -75,11 +75,10 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
   route: markers show but there's no route line and no message.
 - No timeouts on outgoing ORS or Nominatim calls (ORS optimize once took 15.2 s).
 - Not mobile responsive (per the user).
-- `README.md` lists the loading spinner and rate limits, which aren't in
-  production until `working` is merged into `main`.
+- Production hasn't been smoke-tested since the loading state and abuse
+  protection were merged (next session, per TODO).
 - `/api/autocomplete` (unused, OpenCage) has no origin check or rate limit.
-- The README screenshot shows the old orange theme, and the README says MIT but
-  there's no `LICENSE` file.
+- The README says MIT, but there's no `LICENSE` file.
 - `next lint` is deprecated and will be removed in Next 16.
 - Local builds warn about a stray `~/package-lock.json` that Next picks up as the
   workspace root. Doesn't affect Vercel.
