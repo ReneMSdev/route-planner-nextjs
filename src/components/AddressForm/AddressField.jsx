@@ -8,8 +8,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 import ClientOnly from '@/components/ClientOnly'
 
-export default function AddressField({ id, label, value, onChange, onRemove, canRemove }) {
-  const { attributes, listeners, setNodeRef, transform } = useSortable({ id })
+export default function AddressField({ id, label, value, onChange, onRemove, canRemove, disabled }) {
+  const { attributes, listeners, setNodeRef, transform } = useSortable({ id, disabled })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -28,6 +28,7 @@ export default function AddressField({ id, label, value, onChange, onRemove, can
           onChange={(e) => onChange(e.target.value)}
           value={value}
           placeholder='Enter Address'
+          disabled={disabled}
           className='min-h-8 pr-14'
         />
 
@@ -50,7 +51,7 @@ export default function AddressField({ id, label, value, onChange, onRemove, can
         </ClientOnly>
 
         {/* Remove X with Tooltip */}
-        {canRemove && (
+        {canRemove && !disabled && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

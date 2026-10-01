@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
@@ -27,6 +28,11 @@ export default function Home() {
 
   const [showExportModal, setShowExportModal] = useState(false)
 
+  // True while a route is being built. The ref blocks a second submit before
+  // React re-renders with the disabled buttons.
+  const [loading, setLoading] = useState(false)
+  const loadingRef = useRef(false)
+
   // A failed submit clears the old route so the map and Export never show a
   // route the user was trying to replace.
   const clearRoute = () => {
@@ -36,8 +42,29 @@ export default function Home() {
   }
 
   // Accepts optional override (used by "Generate Random Route").
-  // Returns true when a route was drawn, false otherwise.
+  // Returns true when a route was drawn, false otherwise. Ignored while a
+  // previous request is still running. Messages are shown after the loading
+  // spinner clears, so an alert never sits on top of it.
   const geocodeAndSet = async (addrOverride) => {
+    if (loadingRef.current) return false
+    loadingRef.current = true
+    setLoading(true)
+    let result
+    try {
+      result = await buildRoute(addrOverride)
+    } finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
+    if (result.message) {
+      await new Promise((resolve) => setTimeout(resolve, 50)) // let the spinner disappear first
+      alert(result.message)
+    }
+    return result.ok
+  }
+
+  // Returns { ok, message? }
+  const buildRoute = async (addrOverride) => {
     try {
       // 1) Choose input: override (random) or current state
       const inputRaw = Array.isArray(addrOverride) ? addrOverride : addresses
@@ -46,8 +73,7 @@ export default function Home() {
       const input = inputRaw.map((a) => (a || '').trim()).filter(Boolean)
       if (input.length < 2) {
         clearRoute()
-        alert('Please enter at least 2 addresses or generate a random route.')
-        return false
+        return { ok: false, message: 'Please enter at least 2 addresses or generate a random route.' }
       }
 
       // 3) Geocode (same order/length as input, may include nulls depending on your route)
@@ -60,10 +86,11 @@ export default function Home() {
 
       if (validIdx.length < 2) {
         clearRoute()
-        alert(
-          'We could not geocode at least two addresses. Try different ones or Generate Random Route.'
-        )
-        return false
+        return {
+          ok: false,
+          message:
+            'We could not geocode at least two addresses. Try different ones or Generate Random Route.',
+        }
       }
 
       const validCoords = validIdx.map((i) => results[i])
@@ -103,22 +130,26 @@ export default function Home() {
 
       setActiveTab('line') // keep user on the Line-by-line view
 
-      // After the route is drawn, so the alert doesn't hold up the route request
+      // Shown after the route is drawn, so it doesn't hold up the route request
       if (notFound.length > 0) {
-        alert(
-          `We couldn't find ${notFound.length === 1 ? 'this address' : 'these addresses'}, so ${
+        return {
+          ok: true,
+          message: `We couldn't find ${notFound.length === 1 ? 'this address' : 'these addresses'}, so ${
             notFound.length === 1 ? "it isn't" : "they aren't"
           } on the map:\n\n${notFound.join('\n')}\n\n${
             notFound.length === 1 ? "It's" : "They're"
-          } kept at the end of your list so you can edit and resubmit.`
-        )
+          } kept at the end of your list so you can edit and resubmit.`,
+        }
       }
-      return true
+      return { ok: true }
     } catch (err) {
       console.error(err)
       clearRoute()
-      alert(err.userMessage || 'Something went wrong while building the route. Please try again.')
-      return false
+      return {
+        ok: false,
+        message:
+          err.userMessage || 'Something went wrong while building the route. Please try again.',
+      }
     }
   }
 
@@ -169,12 +200,14 @@ export default function Home() {
               <TabsList className='grid w-full grid-cols-2'>
                 <TabsTrigger
                   value='line'
+                  disabled={loading}
                   className='cursor-pointer'
                 >
                   Line by Line
                 </TabsTrigger>
                 <TabsTrigger
                   value='import'
+                  disabled={loading}
                   className='cursor-pointer'
                 >
                   Import
@@ -188,6 +221,7 @@ export default function Home() {
                   onSubmit={geocodeAndSet}
                   onExportClick={() => setShowExportModal(true)}
                   canExport={coordinates.length >= 2}
+                  loading={loading}
                 />
               </TabsContent>
 
@@ -203,11 +237,23 @@ export default function Home() {
 
         {/* Right Panel */}
         <ResizablePanel defaultSize={70}>
-          <div className='h-full'>
+          {/* isolate keeps the overlay's z-index inside this panel (below dialogs) */}
+          <div className='relative isolate h-full'>
             <MapDisplay
               coordinates={coordinates}
               roadPolyline={roadPolyline}
             />
+            {loading && (
+              <div
+                role='status'
+                className='absolute inset-0 z-[1000] flex flex-col items-center justify-center gap-3 bg-white/50'
+              >
+                <Loader2 className='h-12 w-12 animate-spin text-violet-600' />
+                <p className='rounded-full bg-white/90 px-4 py-1 text-sm font-semibold text-violet-900 shadow'>
+                  Finding your route…
+                </p>
+              </div>
+            )}
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
