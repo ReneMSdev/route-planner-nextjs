@@ -26,6 +26,7 @@ External APIs: OpenCage (geocoding, autocomplete) and OpenRouteService
 | Run locally | `npm run dev` (http://localhost:3000) |
 | Lint | `npm run lint` |
 | Build (also the compile check) | `npm run build` |
+| Release | `npm version <patch\|minor\|major>`, then push the commit and the `vX.Y.Z` tag |
 
 `/wrapup` checks: `npm run lint` and `npm run build`.
 

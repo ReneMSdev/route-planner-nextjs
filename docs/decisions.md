@@ -27,3 +27,13 @@ the change (commits b3add70 to c31f696), not recorded at the time.
 **Alternatives:** Lint only; adding a test runner during setup.
 **Why:** There's no test suite yet. Build catches compile and import errors.
 Adding tests is tracked in TODO.
+
+## 2026-09-30: Semantic versioning with git tags, starting at 1.0.0
+
+**Decision:** The version in `package.json` follows semver and each release is
+tagged `vX.Y.Z` (made with `npm version`). The current feature set, already live
+on Vercel, is `v1.0.0`.
+**Alternatives:** Leaving it unversioned (deploys identified only by commit
+hash); starting at 0.x.
+**Why:** Gives deploys and changes a name to refer to. It's 1.0.0 rather than
+0.x because the app is complete and public as a portfolio piece.
