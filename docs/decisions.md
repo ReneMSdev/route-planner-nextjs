@@ -37,3 +37,33 @@ on Vercel, is `v1.0.0`.
 hash); starting at 0.x.
 **Why:** Gives deploys and changes a name to refer to. It's 1.0.0 rather than
 0.x because the app is complete and public as a portfolio piece.
+
+## 2026-10-01: Map tiles from OpenStreetMap instead of CARTO
+
+**Decision:** The Leaflet map uses OSM's standard tiles
+(`https://tile.openstreetmap.org/{z}/{x}/{y}.png`, maxZoom 19) with OSM attribution.
+**Alternatives:** Getting a CARTO API key (the key would show up in client-side
+tile URLs, against the server-side-keys rule, unless every tile went through a
+proxy route); another keyed provider such as MapTiler or Stadia (same key issue).
+**Why:** CARTO's basemaps started requiring an API key: every tile request
+returned an "API KEY REQUIRED" placeholder image with HTTP 200, so the map was
+blank (checked 2026-10-01). OSM tiles are free, need no key, and were the app's
+original tile source (86aeb50) before it switched to CARTO Voyager in 2a46be8.
+The trade-off is a busier map style. Uses the subdomain-free URL because OSM
+has deprecated `{a,b,c}.tile.openstreetmap.org`.
+
+## 2026-10-01: Geocoding with Nominatim instead of OpenCage
+
+**Decision:** `/api/geocode` uses Nominatim (OpenStreetMap's public geocoder)
+with no API key. It follows Nominatim's usage policy in the route itself:
+sequential lookups at least 1.1s apart, an identifying User-Agent, an in-memory
+cache, and at most 25 addresses per request (`maxDuration` 60s). The route
+returns a 502 with a user-facing message when the lookup fails.
+**Alternatives:** Getting a new OpenCage key (the
+existing key had been rejected); other keyed geocoders.
+**Why:** OpenCage rejected the production key with 401 "unknown API key"
+(checked 2026-09-30), and the v1.1.0 goal was a free replacement. Nominatim is
+free and keyless, and a portfolio demo's volume fits its 1 request/second limit.
+Trade-offs: the limit is per server instance (not coordinated across Vercel
+instances), a 25-address route takes about 30s to geocode, and the policy forbids
+autocomplete, so `/api/autocomplete` can't move to it.

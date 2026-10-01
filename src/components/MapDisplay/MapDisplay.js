@@ -12,29 +12,26 @@ let DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
+const defaultPosition = [37.79, -122.345] // between SF and Oakland (over the Bay Bridge)
+
+const validateLatLng = (arr = []) =>
+  arr.filter(
+    (p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
+  )
+
+// Defined at module level so it isn't remounted on every render. It refits only
+// when a new route arrives, not when the user is zooming or typing.
+function FitBounds({ coordinates, roadPolyline }) {
+  const map = useMap()
+  useEffect(() => {
+    const pts = [...validateLatLng(coordinates), ...validateLatLng(roadPolyline)]
+    if (pts.length === 0) return
+    map.fitBounds(L.latLngBounds(pts), { padding: [50, 50] })
+  }, [coordinates, roadPolyline, map])
+  return null
+}
+
 export default function MapDisplay({ coordinates, roadPolyline }) {
-  const defaultPosition = [37.7749, -122.4194] // SF
-
-  // ✅ return the filtered array
-  const validateLatLng = (arr = []) =>
-    arr.filter(
-      (p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
-    )
-
-  function FitBounds({ coordinates }) {
-    const map = useMap()
-    useEffect(() => {
-      const pts = [
-        ...validateLatLng(coordinates),
-        ...validateLatLng(roadPolyline), // ✅ spread this too
-      ]
-      if (pts.length === 0) return
-      const bounds = L.latLngBounds(pts)
-      map.fitBounds(bounds, { padding: [50, 50] })
-    }, [coordinates, map]) // ✅ include roadPolyline
-    return null
-  }
-
   const validStops = validateLatLng(coordinates)
   const validPolyline = validateLatLng(roadPolyline)
 
@@ -47,20 +44,22 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
       className='w-full h-full z-0'
     >
       <TileLayer
-        url='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        subdomains={['a', 'b', 'c', 'd']}
-        maxZoom={20}
+        url='https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        maxZoom={19}
       />
 
-      <FitBounds coordinates={coordinates} />
+      <FitBounds
+        coordinates={coordinates}
+        roadPolyline={roadPolyline}
+      />
 
       {validStops.map((coord, idx) => {
         const label = String.fromCharCode(65 + idx)
         const labelIcon = L.divIcon({
           // ✅ avoid shadowing "icon" import
           className: 'custom-marker-label',
-          html: `<div class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow">${label}</div>`,
+          html: `<div class="bg-violet-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow">${label}</div>`,
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         })
@@ -76,7 +75,7 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
       {validPolyline.length > 1 && (
         <Polyline
           positions={validPolyline}
-          pathOptions={{ color: 'blue', weight: 6, opacity: 0.6 }}
+          pathOptions={{ color: '#7c3aed', weight: 6, opacity: 0.7 }}
         />
       )}
     </MapContainer>

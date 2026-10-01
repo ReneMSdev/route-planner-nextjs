@@ -31,7 +31,7 @@ export default function ExportModal({ open, onClose, onDownloadPDF, qrUrl }) {
         <div className=' text-center space-y-2'>
           <Button
             onClick={onDownloadPDF}
-            className='w-70 bg-green-500 hover:bg-green-400 cursor-pointer'
+            className='w-70 bg-violet-600 hover:bg-violet-700 cursor-pointer'
           >
             📄 Download PDF
           </Button>

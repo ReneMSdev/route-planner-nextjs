@@ -2,7 +2,7 @@
 
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import AddressField from './AddressField'
 import { Button } from '../ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -10,26 +10,25 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
 import { getRandomDemoRoute } from '@/utils/demoAddresses'
 
-export default function AddressForm({ stops, setStops, onSubmit, onExportClick }) {
-  const [routeSubmitted, setRouteSubmitted] = useState(false)
+export default function AddressForm({ stops, setStops, onSubmit, onExportClick, canExport }) {
   const bottomRef = useRef(null)
 
-  const handleSubmit = () => {
-    onSubmit()
-    setRouteSubmitted(true)
+  // Scroll the Export button into view, but only once a route was actually drawn
+  const scrollToExport = (ok) => {
+    if (!ok) return
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }, 100)
   }
 
-  const handleGenerateRandom = () => {
+  const handleSubmit = async () => {
+    scrollToExport(await onSubmit())
+  }
+
+  const handleGenerateRandom = async () => {
     const demo = getRandomDemoRoute(5)
     setStops(demo)
-    onSubmit(demo)
-    setRouteSubmitted(true)
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }, 100)
-    })
+    scrollToExport(await onSubmit(demo))
   }
 
   const handleAddStop = () => {
@@ -56,7 +55,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
   }
 
   return (
-    <Card className='border-none shadow-none m-0 px-3 pt-3 max-h-[70vh] overflow-y-auto'>
+    <Card className='border-none shadow-none bg-transparent m-0 px-3 pt-3 max-h-[70vh] overflow-y-auto'>
       <CardHeader className='px-0'>
         <CardTitle className='text-gray-700'>One address per line</CardTitle>
         <p className='text-sm text-muted-foreground'>Address "A" will be your starting location</p>
@@ -88,7 +87,7 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
 
         <div
           onClick={handleAddStop}
-          className='flex gap-2 items-center font-semibold text-sm text-gray-700 hover:cursor-pointer hover:text-green-500'
+          className='flex gap-2 items-center font-semibold text-sm text-gray-700 hover:cursor-pointer hover:text-violet-600'
         >
           <FaPlus />
           <p>Add another stop</p>
@@ -98,25 +97,25 @@ export default function AddressForm({ stops, setStops, onSubmit, onExportClick }
 
         <Button
           onClick={handleSubmit}
-          className='text-white bg-orange-400 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-orange-300'
+          className='text-white bg-violet-600 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-violet-700'
         >
           Submit Route
         </Button>
 
         <Button
-          className='text-white bg-orange-400 cursor-pointer w-full max-w-[280px] mx-auto block hover:bg-orange-300'
+          className='text-white bg-linear-to-r from-violet-600 to-fuchsia-600 cursor-pointer w-full max-w-[280px] mx-auto block shadow-md shadow-fuchsia-200 hover:from-violet-700 hover:to-fuchsia-700'
           onClick={handleGenerateRandom}
         >
           Generate Random Route
         </Button>
 
-        {routeSubmitted && (
+        {canExport && (
           <div
             className='mt-4 text-center'
             ref={bottomRef}
           >
             <Button
-              className='text-white w-full max-w-[280px] bg-slate-600 hover:bg-slate-500 cursor-pointer'
+              className='w-full max-w-[280px] bg-white text-violet-700 border border-violet-300 hover:bg-violet-100 cursor-pointer'
               onClick={onExportClick}
             >
               Export Route

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
 import AddressForm from '@/components/AddressForm/AddressForm'
 import ImportForm from '@/components/ImportForm'
 import { parseFile } from '@/components/ImportForm/parseFile'
@@ -23,10 +22,21 @@ export default function Home() {
 
   const [coordinates, setCoordinates] = useState([])
   const [roadPolyline, setRoadPolyline] = useState([])
+  // Addresses of the stops currently on the map, in route order (for the PDF)
+  const [routedAddresses, setRoutedAddresses] = useState([])
 
   const [showExportModal, setShowExportModal] = useState(false)
 
-  // Accepts optional override (used by "Generate Random Route")
+  // A failed submit clears the old route so the map and Export never show a
+  // route the user was trying to replace.
+  const clearRoute = () => {
+    setCoordinates([])
+    setRoadPolyline([])
+    setRoutedAddresses([])
+  }
+
+  // Accepts optional override (used by "Generate Random Route").
+  // Returns true when a route was drawn, false otherwise.
   const geocodeAndSet = async (addrOverride) => {
     try {
       // 1) Choose input: override (random) or current state
@@ -35,8 +45,9 @@ export default function Home() {
       // 2) Trim + drop empties
       const input = inputRaw.map((a) => (a || '').trim()).filter(Boolean)
       if (input.length < 2) {
+        clearRoute()
         alert('Please enter at least 2 addresses or generate a random route.')
-        return
+        return false
       }
 
       // 3) Geocode (same order/length as input, may include nulls depending on your route)
@@ -48,14 +59,16 @@ export default function Home() {
       const validIdx = results.map((r, i) => (isValidPoint(r) ? i : -1)).filter((i) => i >= 0)
 
       if (validIdx.length < 2) {
+        clearRoute()
         alert(
           'We could not geocode at least two addresses. Try different ones or Generate Random Route.'
         )
-        return
+        return false
       }
 
       const validCoords = validIdx.map((i) => results[i])
       const validAddresses = validIdx.map((i) => input[i])
+      const notFound = input.filter((_, i) => !isValidPoint(results[i]))
 
       // 5) Optimize order (fallback to input order if optimization fails)
       let order
@@ -69,9 +82,11 @@ export default function Home() {
       const reorderedCoords = order.map((i) => validCoords[i])
       const reorderedAddresses = order.map((i) => validAddresses[i])
 
-      // 6) Update UI (addresses shown in the left panel, coords for markers)
-      setAddresses(reorderedAddresses)
+      // 6) Update UI (addresses shown in the left panel, coords for markers).
+      // Addresses that weren't found stay at the end of the list so the user can fix them.
+      setAddresses([...reorderedAddresses, ...notFound])
       setCoordinates(reorderedCoords)
+      setRoutedAddresses(reorderedAddresses)
 
       // 7) Fetch road polyline (safe-guard)
       if (reorderedCoords.length >= 2) {
@@ -87,9 +102,23 @@ export default function Home() {
       }
 
       setActiveTab('line') // keep user on the Line-by-line view
+
+      // After the route is drawn, so the alert doesn't hold up the route request
+      if (notFound.length > 0) {
+        alert(
+          `We couldn't find ${notFound.length === 1 ? 'this address' : 'these addresses'}, so ${
+            notFound.length === 1 ? "it isn't" : "they aren't"
+          } on the map:\n\n${notFound.join('\n')}\n\n${
+            notFound.length === 1 ? "It's" : "They're"
+          } kept at the end of your list so you can edit and resubmit.`
+        )
+      }
+      return true
     } catch (err) {
       console.error(err)
-      alert('Something went wrong while building the route. Please try again.')
+      clearRoute()
+      alert(err.userMessage || 'Something went wrong while building the route. Please try again.')
+      return false
     }
   }
 
@@ -98,12 +127,16 @@ export default function Home() {
       if (parsedAddresses.length > 0) {
         setAddresses(parsedAddresses)
         setActiveTab('line') // auto-switch to Line by line tab
+      } else {
+        alert(
+          'No addresses found in that file. Use a header row with either an "Address" column, or "Street" and "City" columns ("State" and "Zip" optional).'
+        )
       }
     })
   }
 
   const handleDownloadPDF = () => {
-    downloadPdfRoute(addresses, 'map')
+    downloadPdfRoute(routedAddresses, 'map')
   }
 
   return (
@@ -119,14 +152,10 @@ export default function Home() {
           maxSize={50}
           className='min-width-[300px]'
         >
-          <div className='h-full border-r border-gray-300 pb-6'>
-            <div className='flex justify-center items-center gap-5 bg-orange-400 py-6 px-4'>
-              <h1 className='text-3xl font-bold text-white'>Route Boss</h1>
-              <Separator
-                orientation='vertical'
-                className='bg-gray-100 h-12'
-              />
-              <p className='text-sm text-white font-semibold'>
+          <div className='h-full border-r border-violet-200 bg-violet-50 pb-6'>
+            <div className='flex flex-col justify-center items-center gap-1 bg-violet-200 py-6 px-4 text-center'>
+              <h1 className='text-3xl font-bold text-violet-900'>Route Boss</h1>
+              <p className='text-sm text-violet-800 font-semibold'>
                 Plan your optimal delivery or travel route
               </p>
             </div>
@@ -158,6 +187,7 @@ export default function Home() {
                   setStops={setAddresses}
                   onSubmit={geocodeAndSet}
                   onExportClick={() => setShowExportModal(true)}
+                  canExport={coordinates.length >= 2}
                 />
               </TabsContent>
 
