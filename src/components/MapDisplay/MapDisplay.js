@@ -47,10 +47,9 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
       className='w-full h-full z-0'
     >
       <TileLayer
-        url='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        subdomains={['a', 'b', 'c', 'd']}
-        maxZoom={20}
+        url='https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        maxZoom={19}
       />
 
       <FitBounds coordinates={coordinates} />

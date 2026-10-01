@@ -89,7 +89,7 @@ export default function Home() {
       setActiveTab('line') // keep user on the Line-by-line view
     } catch (err) {
       console.error(err)
-      alert('Something went wrong while building the route. Please try again.')
+      alert(err.userMessage || 'Something went wrong while building the route. Please try again.')
     }
   }
 

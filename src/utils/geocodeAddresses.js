@@ -6,11 +6,10 @@ export async function geocodeAddresses(addresses) {
   })
 
   if (!res.ok) {
-    let detail = ''
-    try {
-      detail = await res.text()
-    } catch {}
-    throw new Error(`Geocoding request failed (${res.status}) ${detail || ''}`.trim())
+    const json = await res.json().catch(() => null)
+    const err = new Error(json?.error || `Geocoding request failed (${res.status})`)
+    err.userMessage = json?.error
+    throw err
   }
 
   const { results } = await res.json()
