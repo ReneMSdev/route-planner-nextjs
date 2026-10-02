@@ -40,7 +40,7 @@ export default function AddressField({ id, label, value, onChange, onRemove, can
                 <div
                   {...attributes}
                   {...listeners}
-                  className='absolute top-0 right-0 h-full w-8 bg-violet-100 hover:bg-violet-200 flex items-center justify-center cursor-grab rounded-r-sm'
+                  className='absolute top-0 right-0 h-full w-8 bg-violet-100 hover:bg-violet-200 flex items-center justify-center cursor-grab touch-none rounded-r-sm'
                 >
                   <FaBars className='text-violet-600 text-sm' />
                 </div>
