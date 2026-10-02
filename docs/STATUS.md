@@ -1,6 +1,6 @@
 # Status
 
-_Last verified: 2026-10-02 on `working` (the Open in Google Maps changes on top of f372453). Production is `main` at 649f92d (mobile layout), checked by the user on a phone; the Google Maps button is on `working` only, not yet in production._
+_Last verified: 2026-10-02 at 939c82f (`working`). Production is `main` at 864dc59, the same tree, deployed with Vercel status `success`; the user confirmed the mobile scroll fix there on an iPhone._
 
 Portfolio/demo app, live on Vercel. Geocoding uses Nominatim and map tiles use
 OpenStreetMap, neither with a key; OpenRouteService (ORS) handles optimization
@@ -55,7 +55,13 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
     directions URL (driving) in a new tab, which should open the Google Maps app
     on phones that have it (not yet tried on a phone). On phones it's the first
     option and the QR code is hidden; on desktop it sits between the PDF and the
-    QR code, which encodes the same URL. *(On `working`, not in production.)*
+    QR code, which encodes the same URL.
+  - Phones: the layout is pinned to the screen (`fixed inset-0`), so only the
+    stops list scrolls; `html`/`body` have `overscroll-behavior: none` (no page
+    bounce or pull-to-refresh) and a violet background; `theme-color` matches
+    the header.
+- **Favicon:** `public/favicon.svg` (violet circle, white map pin) with PNGs
+  rendered from it: `favicon.png` 32×32 and `apple-icon.png` 180×180.
 - **Import:** accepts an `Address` column or `Street` + `City` (`State`/`Zip`
   optional), matching headers ignoring case, spaces, dashes, and underscores.
 - **Demo addresses:** 43 (20 SF, 19 East Bay, 4 Marin); see the table for the
@@ -63,11 +69,13 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
 
 | Check | Result | Evidence |
 |---|---|---|
-| Lint | passing | `npm run lint`: "No ESLint warnings or errors" (Google Maps changes on `working`, 2026-10-02; re-run by the verifier) |
-| Build | passing | `next build` in a scratch copy of the tree (the dev server was using `.next`): compiled, 8/8 static pages (Google Maps changes on `working`, 2026-10-02) |
-| Open in Google Maps | verified on desktop Chrome; not on a phone | Verifier confirmed the code claims. Offline Node check of `generateGoogleMapsUrl`: '' below 2 points, origin/destination/`travelmode=driving`, waypoints only for 3+ points, in order. Chrome on localhost: the link had 5 stops and driving mode, and opening it showed Google Maps with the 5 stops in order and a drawn route; at 500px the dialog put Google Maps first with no QR code (main agent's observations, 2026-10-02). Not tested: the Google Maps app opening on a phone, scanning the new QR code |
+| Lint | passing | `npm run lint`: "No ESLint warnings or errors" (939c82f, 2026-10-02; re-run by the verifier) |
+| Build | passing | `next build` in a scratch copy of the tree (the dev server was using `.next`): compiled, 8/8 static pages (939c82f tree, 2026-10-02) |
+| Mobile scroll fix | verified on an iPhone | User: the production build fixes the iPhone (Chrome) bug where swiping past the stops list scrolled the page, hid the header, triggered a reload, and showed a white background (864dc59, 2026-10-02). Verifier confirmed the code (939c82f). Scratch production build served locally at 500px: page height = viewport, `scrollTo(0, 500)` left `scrollY` 0, overscroll `none` on html/body and `contain` on the list, violet background; desktop unchanged (main agent). iOS keyboard behaviour with the pinned layout not specifically tested |
+| Favicon | verified (files) | Verifier: SVG colours, `favicon.png` 32×32 and `apple-icon.png` 180×180 with matching pixels, metadata links (98087b0). Dev server served all three with HTTP 200 and the expected `<link>` tags (main agent). Not looked at in a real browser tab |
+| Open in Google Maps | verified on desktop Chrome; in production, not tried on a phone | Verifier confirmed the code claims. Offline Node check of `generateGoogleMapsUrl`: '' below 2 points, origin/destination/`travelmode=driving`, waypoints only for 3+ points, in order. Chrome on localhost: the link had 5 stops and driving mode, and opening it showed Google Maps with the 5 stops in order and a drawn route; at 500px the dialog put Google Maps first with no QR code (main agent's observations, 2026-10-02). Not tested: the Google Maps app opening on a phone, scanning the new QR code |
 | Mobile / responsive layout | verified; in production | Verifier reviewed the diff against all code claims (00ac5dc). Chrome on localhost at 614×666: Map view filled without grey tiles, Generate showed the spinner on the Map view then a 5-stop route, Stops scrolled with header and switch pinned, no horizontal scroll; left column 410px at 820px, 440px at 1100px, 420px at 1400px (main agent, 2026-10-02). The user checked production (649f92d) on a phone: "looks great on mobile" (2026-10-02). Not singled out: touch drag-to-reorder, first-load flash |
-| Production smoke test | passing (for 493e2a6); 649f92d only checked on the user's phone | Live site at 493e2a6, 2026-10-02: Vercel status `success` and a Production deployment for the merge commit (verifier); one Generate Random Route in Chrome drew a 5-stop A–E route with a road line (seen by the main agent only, not re-run by the verifier, to save quota). Earlier, on 8d1e8f6: `profile` injection, `?`/`#` suffix, invalid JSON, and 26 stops all returned 400 |
+| Production smoke test | passing (for 493e2a6); later deploys checked by the user on a phone | 864dc59: Vercel status `success` and a Production deployment (verifier, 2026-10-02); the user checked the mobile layout (649f92d) and the scroll fix (864dc59) on a phone. Live site at 493e2a6, 2026-10-02: Vercel status `success` and a Production deployment for the merge commit (verifier); one Generate Random Route in Chrome drew a 5-stop A–E route with a road line (seen by the main agent only, not re-run by the verifier, to save quota). Earlier, on 8d1e8f6: `profile` injection, `?`/`#` suffix, invalid JSON, and 26 stops all returned 400 |
 | Abuse protection | verified (origin check in production) | Production, 2026-10-02 (493e2a6): `Origin: https://evil.example.com` → 403 on `/api/route` and `/api/optimize` (repeated by the verifier), and the browser's own requests weren't blocked behind Vercel's headers (the route loaded). Locally (1ae54d7, 2026-10-01): 19 offline guard tests; curl 10×200 then 429 with `Retry-After: 57`; rate-limit and ORS 503 alerts in the browser. The 429 limits haven't been exercised in production |
 | Loading state | verified | Production, 2026-10-02 (493e2a6): the spinner with "Finding your route..." and the "Loading..." button appeared during Generate (main agent's observation). Locally with held fake responses: one request per double-click, form/tabs/Export locked, alert only after the spinner cleared (e683523, 2026-10-01) |
 | Input validation | verified | 14 bad requests → 400 locally (incl. 4 injection attempts), valid requests 200, live Generate; repeated against production on 8d1e8f6 (7c78bbe, 2026-10-01) |
@@ -90,6 +98,8 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
 - Phones get the desktop layout from the server until JavaScript loads, and
   crossing a width breakpoint (e.g. rotating a tablet) remounts the layout,
   resetting the divider and map view.
+- `overscroll-behavior: none` on `html`/`body` also disables two-finger trackpad
+  swipe back/forward on desktop (found by the verifier; see TODO).
 - Google Maps links carry every stop, but Google documents about 9 stops between
   start and end, so long routes may open incomplete (accepted for a demo).
 - `/api/autocomplete` (unused, OpenCage) has no origin check or rate limit.
