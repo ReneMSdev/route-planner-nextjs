@@ -289,7 +289,8 @@ export default function Home() {
   return (
     <>
       {isMobile ? (
-        <div className='flex h-dvh flex-col bg-violet-50'>
+        // Pinned to the screen so the page itself never scrolls; only the stops list does
+        <div className='fixed inset-0 flex flex-col bg-violet-50'>
           {header}
 
           {/* Stops / Map switch. Both views stay mounted so the form and map keep their state. */}
@@ -316,7 +317,7 @@ export default function Home() {
             </TabsList>
           </Tabs>
 
-          <div className={mobileView === 'stops' ? 'min-h-0 flex-1 overflow-y-auto pb-6' : 'hidden'}>
+          <div className={mobileView === 'stops' ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6' : 'hidden'}>
             {stopsPanel}
           </div>
           <div className={mobileView === 'map' ? 'min-h-0 flex-1' : 'hidden'}>{mapPanel}</div>

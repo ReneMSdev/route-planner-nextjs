@@ -126,3 +126,11 @@ body,
 #__next {
   height: 100%;
 }
+
+/* No page bounce or pull-to-refresh (iOS scrolls past the list into the page
+   otherwise), and violet rather than white if anything still shows behind the app */
+html,
+body {
+  overscroll-behavior: none;
+  background-color: var(--color-violet-50);
+}
