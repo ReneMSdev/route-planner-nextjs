@@ -32,6 +32,11 @@ export default function Home() {
 
   // Below Tailwind's md breakpoint the two panels become a Stops / Map switch
   const isMobile = useMediaQuery('(max-width: 767px)')
+  // Starting width of the address column (%): half on tablets (md to lg),
+  // 40% on small laptops (lg to xl), 30% on wide screens
+  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)')
+  const isSmallLaptop = useMediaQuery('(min-width: 1024px) and (max-width: 1279px)')
+  const sidebarSize = isTablet ? 50 : isSmallLaptop ? 40 : 30
   const [mobileView, setMobileView] = useState('stops')
 
   // True while a route is being built. The ref blocks a second submit before
@@ -318,12 +323,14 @@ export default function Home() {
         </div>
       ) : (
         <ResizablePanelGroup
+          // defaultSize only applies on mount, so remount when the starting size changes
+          key={sidebarSize}
           direction='horizontal'
           className='h-screen w-full'
         >
           {/* Left Panel */}
           <ResizablePanel
-            defaultSize={30}
+            defaultSize={sidebarSize}
             minSize={30}
             maxSize={50}
             className='min-w-[300px]'
@@ -338,7 +345,7 @@ export default function Home() {
           <ResizableHandle withHandle />
 
           {/* Right Panel */}
-          <ResizablePanel defaultSize={70}>{mapPanel}</ResizablePanel>
+          <ResizablePanel defaultSize={100 - sidebarSize}>{mapPanel}</ResizablePanel>
         </ResizablePanelGroup>
       )}
 
