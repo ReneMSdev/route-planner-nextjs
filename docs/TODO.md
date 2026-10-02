@@ -1,7 +1,6 @@
 # TODO
 
 ## Now (v1.1.0)
-- [ ] Open in Google Maps is in production (864dc59): on a phone, check that the button opens the Google Maps app with the route, and scan the desktop QR code (now the `api=1` format)
 - [ ] Desktop trackpad swipe back/forward is disabled by `overscroll-behavior: none` on `html`/`body` (939c82f). Switch to `overscroll-behavior-y: none` to keep swipe navigation and still block pull-to-refresh, then recheck on the iPhone
 - [ ] On a phone, check touch drag-to-reorder (the handle has `touch-none`) and whether the desktop layout flashes on first load; the user's phone check on 2026-10-02 ("looks great on mobile") didn't single these out
 - [ ] Tag v1.1.0 now that the mobile layout is in production (`npm version minor`, then push the commit and the `v1.1.0` tag). Production has run untagged changes since v1.0.0: Nominatim/OSM switch, purple theme, bug fixes, input validation, loading state, abuse protection, mobile layout
@@ -47,6 +46,7 @@ Suspected (not reproduced)
 - [ ] If traffic grows: rate limiting (Nominatim spacing and the per-IP limits) is per serverless instance, so a shared store (e.g. Upstash/Vercel KV) or Vercel Firewall rules would be needed for real guarantees
 
 ## Done recently
+- [x] Open in Google Maps checked on a phone: on the user's iPhone the button opens the Google Maps app with the route, and the desktop QR code scans (production, 2026-10-02)
 - [x] Mobile scroll fix: the phone layout is pinned to the screen, the stops list contains its overscroll, `html`/`body` have `overscroll-behavior: none` and a violet background, `theme-color` set. Verifier confirmed the code; the user confirmed on an iPhone in production (939c82f, 864dc59, 2026-10-02)
 - [x] New favicon: violet circle with a white map pin (`favicon.svg`), with a 32×32 PNG and a 180×180 Apple touch icon rendered from it; in production (98087b0, 2026-10-02)
 - [x] Deleted merged branches `mobile-design` and `vercel/react-server-components-cve-vu-01hq2g` (Vercel's 2026-01-06 RCE patch, PR #2, merged and superseded by Next 15.5.27) locally and on GitHub (2026-10-02)
@@ -57,4 +57,3 @@ Suspected (not reproduced)
 - [x] README rewritten for the current app (Nominatim/ORS, `ORS_API_KEY` only, Next.js 15, features and limits, folder structure) and ARCHITECTURE.md added with three Mermaid diagrams, all checked to render (2026-10-01, c597c2d)
 - [x] Abuse protection (`src/lib/apiGuard.js`) on `/api/geocode`, `/api/optimize`, `/api/route`: same-origin check (403 otherwise) and a per-IP limit of 10/min and 100/day per route (429 with Retry-After and a friendly message), in memory per server instance. ORS 403/429 become a "demo quota used up" 503, and the page now tells the user when optimize or the road route fails for those reasons instead of failing silently. `/api/optimize` returns 502 for other ORS errors instead of forwarding ORS's status (2026-10-01, 1ae54d7)
 - [x] Loading state: spinner with "Finding your route…" over the map, the clicked button reads "Loading...", Submit/Generate/Export, the address fields, and the Line/Import tabs are disabled, and a second submit is ignored while one runs. Fixes the submit race, lost mid-request edits, and double-click Nominatim calls from the UI; two tabs or clients can still send overlapping requests, and `/api/geocode` doesn't de-duplicate in-flight lookups. Alerts wait until the spinner clears (2026-10-01, e683523)
-- [x] Security: `/api/route` and `/api/optimize` accept only the `driving-car` profile (closes the ORS path injection), cap stops at 25, validate lat/lng, and return 400 instead of 500 for malformed input (shared `src/lib/routeInput.js`); `/api/route` returns 502 instead of 500 if ORS sends a non-JSON 200 (2026-10-01, 7c78bbe)
