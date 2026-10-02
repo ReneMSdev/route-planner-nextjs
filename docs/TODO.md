@@ -5,7 +5,7 @@
 - [ ] Desktop trackpad swipe back/forward is disabled by `overscroll-behavior: none` on `html`/`body` (939c82f). Switch to `overscroll-behavior-y: none` to keep swipe navigation and still block pull-to-refresh, then recheck on the iPhone
 - [ ] On a phone, check touch drag-to-reorder (the handle has `touch-none`) and whether the desktop layout flashes on first load; the user's phone check on 2026-10-02 ("looks great on mobile") didn't single these out
 - [ ] Tag v1.1.0 now that the mobile layout is in production (`npm version minor`, then push the commit and the `v1.1.0` tag). Production has run untagged changes since v1.0.0: Nominatim/OSM switch, purple theme, bug fixes, input validation, loading state, abuse protection, mobile layout
-- [ ] Add timeouts (AbortController; ORS optimize once took 15.2 s on 2026-10-01) to the outgoing ORS calls in `/api/optimize` and `/api/route` and the Nominatim call in `/api/geocode`, returning a clear error instead of hanging
+- [ ] Add timeouts (AbortController; ORS optimize took 15.2 s on 2026-10-01 and about 40 s on production on 2026-10-02) to the outgoing ORS calls in `/api/optimize` and `/api/route` and the Nominatim call in `/api/geocode`, returning a clear error instead of hanging
 - [ ] Delete `/api/autocomplete` (still OpenCage, nothing calls it, and Nominatim's policy forbids autocomplete) or replace it with an allowed service; it also has no origin check or rate limit
 
 ## Abuse protection (ORS free quota: optimization ~500/day, directions ~2,000/day, 40/min each; a loop could burn the daily optimization quota in minutes)
@@ -13,8 +13,9 @@
 - [ ] `/api/geocode` limits requests, not addresses: one IP can queue ~250 lookups (10 × 25) on the shared 1.1 s queue and push other users past the 60 s `maxDuration`. Consider counting addresses or capping concurrent lookups per IP
 - [ ] Confirm the ORS plan quotas and whether keys expire in the HeiGIT dashboard (daily figures came from search results; the plans page couldn't be read, and no expiry policy was found in the docs, 2026-10-01)
 
-## Bugs (found in the 2026-10-01 bug hunt; checked by the verifier subagent against 89fc4ee)
+## Bugs (found in the 2026-10-01 bug hunt and checked by the verifier subagent against 89fc4ee, unless dated otherwise)
 Medium
+- [ ] Blank map after switching from the desktop to the phone layout with a route loaded while the Stops view shows: the Map view opens zoomed all the way in on open water. The map is mounted hidden (0×0), so `FitBounds` fits the route to an empty container, and `invalidateSize()` on show doesn't refit. Rotating a phone from landscape (≥768px) to portrait can trigger it. Reproduced on production at 500px, 2026-10-02; submitting again fixes the view. Fix idea: refit in `FitBounds` when the container goes from zero size to visible
 - [ ] Unreachable stop: when ORS can't route (e.g. an island, or a point more than 1 km from a road), the page shows markers but no route line and no message (console.warn only); `/api/route` now snaps up to 1 km, which fixed the Muir Woods demo stop
 - [ ] Export text says "optimized" even when optimization fell back to input order (the PDF, QR, and map now all come from the same submitted route; the form can still differ after later edits, which is expected)
 Low
@@ -22,6 +23,7 @@ Low
 - [ ] PDF: no line wrapping or pagination (lines from about stop 34 fall off the page); the `mapElementId` parameter is unused
 - [ ] `handleAddStop` and `handleAddressChange` build state from the closure instead of a functional updater; same-render updates are lost
 - [ ] `handleDragEnd` reads `over.id` without optional chaining; throws if a drag ends with no target
+- [ ] `AddressField.jsx` imports `@dnd-kit/utilities`, which isn't in `package.json`; it only resolves because `@dnd-kit/sortable` installs it. Add it as a direct dependency (found by the verifier, 2026-10-02)
 Suspected (not reproduced)
 - [ ] `/api/optimize` ignores ORS `unassigned` jobs, which would silently drop stops; not triggered by an unreachable point (ORS errored instead)
 - [ ] Long routes in Google Maps: the documented `api=1` link allows about 9 stops between start and end (Google's docs, per the verifier from memory; possibly fewer in a phone browser without the app), so a long imported route may open incomplete, and a 25-stop URL makes a dense QR at 200 px. Accepted for a demo (user, 2026-10-02); not handled in code
