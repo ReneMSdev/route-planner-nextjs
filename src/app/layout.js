@@ -14,6 +14,11 @@ export const metadata = {
   },
 }
 
+// Matches the header, for browsers that tint their toolbar
+export const viewport = {
+  themeColor: '#ddd6fe',
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang='en'>
