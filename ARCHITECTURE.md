@@ -38,7 +38,7 @@ flowchart LR
   Nominatim[("Nominatim<br/>OpenStreetMap geocoder")]
   ORS[("OpenRouteService<br/>optimization + directions")]
   Tiles[("tile.openstreetmap.org<br/>map tiles")]
-  GMaps[("Google Maps<br/>(opened from the QR code)")]
+  GMaps[("Google Maps<br/>(opened from a link or the QR code)")]
 
   UI -- "POST JSON" --> Guard
   Geo -- "no key" --> Nominatim
@@ -49,15 +49,18 @@ flowchart LR
 ```
 
 Map tiles are the one outside request that doesn't go through `src/app/api/`;
-they need no key, and the browser loads them directly. The Google Maps link is
-only built into a QR code; the app never calls Google.
+they need no key, and the browser loads them directly. The Google Maps link
+(Google's documented `api=1` directions URL, driving) is offered as an "Open in
+Google Maps" button and, on desktop, a QR code; the app never calls Google.
 
 ## Building a route
 
-Submit and Generate Random Route both call `geocodeAndSet` in `src/app/page.js`.
-It sets a loading flag (spinner over the map, the clicked button reads
-"Loading...", the form is locked) and ignores further submits until it
-finishes. Then it runs three steps in order:
+Submit and Generate Random Route both call `submitRoute` in `src/app/page.js`.
+On phones it first switches to the Map view, and back to Stops if the route
+fails; on any screen it then calls `geocodeAndSet`, which sets a loading flag
+(spinner over the map, the clicked button reads "Loading...", the form is
+locked) and ignores further submits until it finishes. Then it runs three
+steps in order:
 
 ```mermaid
 sequenceDiagram
@@ -111,15 +114,38 @@ All route state is in `Home` (`src/app/page.js`):
 | State | Holds |
 | --- | --- |
 | `addresses` | What the form shows: routed stops in route order, then any addresses that weren't found |
-| `coordinates` | `[lat, lng]` of the routed stops, in route order (markers, QR code) |
+| `coordinates` | `[lat, lng]` of the routed stops, in route order (markers, Google Maps link and QR code) |
 | `roadPolyline` | Road geometry from `/api/route` (the route line) |
 | `routedAddresses` | Addresses of the routed stops, in route order (the PDF) |
 | `loading` | True while a route is being built |
+| `mobileView` | `'stops'` or `'map'`: which view the phone layout shows |
+
+`isMobile`, `isTablet`, and `isSmallLaptop` come from `useMediaQuery`
+(`src/hooks/useMediaQuery.js`) and pick the layout; they aren't stored state.
 
 `coordinates` and `routedAddresses` are set together and cleared together when
-a submit fails, so the map, the PDF, and the QR code always describe the same
+a submit fails, so the map, the PDF, and the Google Maps link always describe the same
 route. Export is offered only while stops are on the map. `MapDisplay` refits
 the view only when a new route arrives, not on unrelated re-renders.
+
+## Layout
+
+The header, the stops panel (tabs and form), and the map panel are built once
+in `page.js` and placed in one of two layouts:
+
+- **Below 768px:** a Stops / Map switch. Both views stay mounted and the
+  inactive one is hidden with CSS, so the form and map keep their state. The
+  map view has its own Export button, and the Export dialog puts "Open in
+  Google Maps" first and hides the QR code.
+- **768px and up:** the resizable two columns. The address column starts at 50%
+  (768–1023px), 40% (1024–1279px), or 30% (1280px+); the panel group is keyed
+  on that size because `defaultSize` only applies on mount.
+
+Crossing 768px swaps layouts, and crossing 1024px or 1280px remounts the
+columns, so the divider position and map view reset. Leaflet only reacts to
+window resizes, so `MapDisplay` watches its own container with a
+`ResizeObserver` and calls `invalidateSize()` when the container is resized or
+shown.
 
 ## When things go wrong
 

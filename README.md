@@ -2,7 +2,7 @@
 
 # Route Boss
 
-**Route Boss** is a route planning web app built with Next.js 15 (App Router) and React 19, styled with Tailwind CSS and shadcn/ui. Enter or import delivery or travel stops, get them geocoded and put in an efficient order, see the route on a map, and export it as a PDF or a QR code that opens the route in Google Maps.
+**Route Boss** is a route planning web app built with Next.js 15 (App Router) and React 19, styled with Tailwind CSS and shadcn/ui. Enter or import delivery or travel stops, get them geocoded and put in an efficient order, see the route on a map, and export it as a PDF or open it in Google Maps (directly, or from a QR code on desktop).
 
 ## 🌐 Live Demo
 
@@ -29,9 +29,13 @@ Interactive map:
 * The road route is drawn as a line over the map
 * A loading spinner shows while the route is being built
 
+Layout:
+* Phones get a **Stops / Map** switch: submitting jumps to the map, and the route opens in Google Maps from the Export button
+* Tablets and desktops get two resizable columns (addresses and map), with the address column wider on smaller screens
+
 Export:
 * Download a **PDF** listing the stops in route order
-* Scan a **QR code** to open the route in **Google Maps** on your phone
+* Open the route in **Google Maps**: a button opens it directly (the Google Maps app on phones that have it), and on desktop a **QR code** sends it to your phone
 
 Limits:
 * US addresses only (geocoding is restricted to the United States)
@@ -71,7 +75,7 @@ src
 │   ├── AddressForm        # Line-by-line entry, Submit / Generate / Export
 │   ├── ImportForm         # Drag-and-drop file import and parsing
 │   ├── MapDisplay         # Leaflet map, markers, and route line
-│   ├── ExportModal.jsx    # PDF download and Google Maps QR code
+│   ├── ExportModal.jsx    # PDF download, Google Maps link, and QR code (desktop)
 │   ├── ClientOnly.jsx     # Renders children only after mount
 │   └── ui                 # shadcn/ui components
 ├── lib
