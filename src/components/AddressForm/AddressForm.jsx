@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaPlus } from 'react-icons/fa'
 import { getRandomDemoRoute } from '@/utils/demoAddresses'
+import { cn } from '@/lib/utils'
 
 export default function AddressForm({
   stops,
@@ -17,6 +18,7 @@ export default function AddressForm({
   onExportClick,
   canExport,
   loading,
+  className,
 }) {
   const bottomRef = useRef(null)
   // Which button started the current request, so only that one says "Loading...".
@@ -78,7 +80,12 @@ export default function AddressForm({
   }
 
   return (
-    <Card className='border-none shadow-none bg-transparent m-0 px-3 pt-3 max-h-[70vh] overflow-y-auto'>
+    <Card
+      className={cn(
+        'border-none shadow-none bg-transparent m-0 px-3 pt-3 max-h-[70vh] overflow-y-auto',
+        className
+      )}
+    >
       <CardHeader className='px-0'>
         <CardTitle className='text-gray-700'>One address per line</CardTitle>
         <p className='text-sm text-muted-foreground'>Address "A" will be your starting location</p>

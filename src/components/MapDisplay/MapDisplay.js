@@ -31,6 +31,19 @@ function FitBounds({ coordinates, roadPolyline }) {
   return null
 }
 
+// Leaflet only notices window resizes. This keeps the map filling its container
+// when the container changes size on its own: dragging the desktop panel handle,
+// or the mobile Map view going from hidden to shown.
+function TrackContainerSize() {
+  const map = useMap()
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize())
+    observer.observe(map.getContainer())
+    return () => observer.disconnect()
+  }, [map])
+  return null
+}
+
 export default function MapDisplay({ coordinates, roadPolyline }) {
   const validStops = validateLatLng(coordinates)
   const validPolyline = validateLatLng(roadPolyline)
@@ -48,6 +61,8 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         maxZoom={19}
       />
+
+      <TrackContainerSize />
 
       <FitBounds
         coordinates={coordinates}
