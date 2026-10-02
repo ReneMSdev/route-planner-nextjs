@@ -106,3 +106,16 @@ avoids the bottom sheet's gesture conflicts with Leaflet panning and drag-to-reo
 A bottom sheet is still possible later. The 50% / 40% splits keep the address
 column at least 384px wide on tablets and small laptops, where 30% made
 addresses wrap to three lines (user's choice, 2026-10-02).
+
+## 2026-10-02: Open in Google Maps uses Google's documented `api=1` URL; stop limit accepted
+
+**Decision:** Add an "Open in Google Maps" button to the Export dialog (first on
+phones, where the QR code is hidden because a phone can't scan its own screen),
+and build the link, and the QR code, with Google's documented Maps URLs format
+(`/maps/dir/?api=1&origin=…&waypoints=…&destination=…&travelmode=driving`).
+**Alternatives:** keep the undocumented `/maps/dir/lat,lng/lat,lng/…` path
+format; warn or split routes with more stops than Google documents (about 9
+between start and end).
+**Why:** The documented format is the one Google supports across web, Android,
+and iOS, and `travelmode=driving` matches the ORS driving route. The user chose
+not to handle the stop limit since this is a demo (2026-10-02).

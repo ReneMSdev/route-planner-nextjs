@@ -354,6 +354,7 @@ export default function Home() {
         onClose={() => setShowExportModal(false)}
         onDownloadPDF={handleDownloadPDF}
         qrUrl={generateGoogleMapsUrl(coordinates)}
+        isMobile={isMobile}
       />
     </>
   )

@@ -1,14 +1,13 @@
 # Status
 
-_Last verified: 2026-10-02 at 00ac5dc (`mobile-design`). The mobile layout is on the `mobile-design` branch only (pushed, not merged into `working` or `main`); production is still 493e2a6, smoke-tested 2026-10-02._
+_Last verified: 2026-10-02 on `working` (the Open in Google Maps changes on top of f372453). Production is `main` at 649f92d (mobile layout), checked by the user on a phone; the Google Maps button is on `working` only, not yet in production._
 
 Portfolio/demo app, live on Vercel. Geocoding uses Nominatim and map tiles use
 OpenStreetMap, neither with a key; OpenRouteService (ORS) handles optimization
 and road routes with a server-side key. Since v1.0.0 the app has gained a light
 purple theme, rebalanced demo addresses, fixes from a bug hunt, input
-validation on the ORS routes, a loading state, and basic abuse protection.
-v1.1.0 isn't tagged yet; the mobile layout is built on `mobile-design` and
-needs a real-phone check and a merge (see TODO).
+validation on the ORS routes, a loading state, basic abuse protection, and a
+mobile layout. v1.1.0 isn't tagged yet (see TODO).
 Production deploys from `main` (Vercel Production); pushes to other branches get
 Preview deploys. There are no automated tests, so lint, build, offline scripts,
 and manual browser checks are the checks. `README.md` describes the app for
@@ -19,7 +18,7 @@ visitors, and `ARCHITECTURE.md` describes how it fits together.
 **State:** single page with manual and file-import (CSV/XLS/XLSX) address
 entry, geocoding (Nominatim, US only), route optimization and a road polyline
 (ORS, `ORS_API_KEY` on the server), a Leaflet map on OSM tiles with A–Z markers,
-and PDF/QR export. API routes in `src/app/api/` proxy the external services.
+and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API routes in `src/app/api/` proxy the external services.
 `/api/autocomplete` still targets OpenCage, but nothing calls it.
 
 - **API guard (`src/lib/apiGuard.js`):** all three API routes first check that
@@ -38,7 +37,7 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
   default is 350 m). ORS quota or key refusals (403/429) become a 503 with a
   user-facing message on both ORS routes, and the server logs the ORS response.
 - **Page:**
-  - Layout by width (`src/hooks/useMediaQuery.js`, on `mobile-design`): below
+  - Layout by width (`src/hooks/useMediaQuery.js`): below
     768px a Stops / Map switch shows one view full-screen; Submit and Generate
     jump to the map, stay there on success, and go back to Stops on failure; the
     map gets a floating Export button. From 768px it's the resizable two-column
@@ -50,8 +49,13 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
   - Addresses that can't be found stay at the end of the list and are named in
     an alert. Quota and rate-limit problems are reported in the same alert.
   - Export appears only while stops are on the map (it's gated on the markers,
-    not the route line). A failed submit clears the old route. The PDF and QR
-    code use the routed stops.
+    not the route line). A failed submit clears the old route. The PDF, the
+    Google Maps link, and the QR code use the routed stops.
+  - Export dialog: "Open in Google Maps" opens Google's documented `api=1`
+    directions URL (driving) in a new tab, which should open the Google Maps app
+    on phones that have it (not yet tried on a phone). On phones it's the first
+    option and the QR code is hidden; on desktop it sits between the PDF and the
+    QR code, which encodes the same URL. *(On `working`, not in production.)*
 - **Import:** accepts an `Address` column or `Street` + `City` (`State`/`Zip`
   optional), matching headers ignoring case, spaces, dashes, and underscores.
 - **Demo addresses:** 43 (20 SF, 19 East Bay, 4 Marin); see the table for the
@@ -59,15 +63,16 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
 
 | Check | Result | Evidence |
 |---|---|---|
-| Lint | passing | `npm run lint`: "No ESLint warnings or errors" (00ac5dc, 2026-10-02; re-run by the verifier) |
-| Build | passing | `next build` in a scratch copy of the tree (the dev server was using `.next`): compiled, 8/8 static pages (00ac5dc, 2026-10-02) |
-| Mobile / responsive layout | verified on desktop Chrome; not on a phone | Verifier reviewed the diff against all code claims (00ac5dc). Chrome on localhost at 614×666 (Chrome's minimum width): Map view filled without grey tiles, one Generate showed the spinner on the Map view then a 5-stop route (geocode/optimize/route 200), Export dialog fit, Stops scrolled with header and switch pinned, no horizontal scroll. Left column measured 410px at 820px, 440px at 1100px, 420px at 1400px (main agent's observations, 2026-10-02). Not tested: a real phone or 375px width, touch drag-to-reorder, first-load flash |
-| Production smoke test | passing | Live site at 493e2a6, 2026-10-02: Vercel status `success` and a Production deployment for the merge commit (verifier); one Generate Random Route in Chrome drew a 5-stop A–E route with a road line (seen by the main agent only, not re-run by the verifier, to save quota). Earlier, on 8d1e8f6: `profile` injection, `?`/`#` suffix, invalid JSON, and 26 stops all returned 400 |
+| Lint | passing | `npm run lint`: "No ESLint warnings or errors" (Google Maps changes on `working`, 2026-10-02; re-run by the verifier) |
+| Build | passing | `next build` in a scratch copy of the tree (the dev server was using `.next`): compiled, 8/8 static pages (Google Maps changes on `working`, 2026-10-02) |
+| Open in Google Maps | verified on desktop Chrome; not on a phone | Verifier confirmed the code claims. Offline Node check of `generateGoogleMapsUrl`: '' below 2 points, origin/destination/`travelmode=driving`, waypoints only for 3+ points, in order. Chrome on localhost: the link had 5 stops and driving mode, and opening it showed Google Maps with the 5 stops in order and a drawn route; at 500px the dialog put Google Maps first with no QR code (main agent's observations, 2026-10-02). Not tested: the Google Maps app opening on a phone, scanning the new QR code |
+| Mobile / responsive layout | verified; in production | Verifier reviewed the diff against all code claims (00ac5dc). Chrome on localhost at 614×666: Map view filled without grey tiles, Generate showed the spinner on the Map view then a 5-stop route, Stops scrolled with header and switch pinned, no horizontal scroll; left column 410px at 820px, 440px at 1100px, 420px at 1400px (main agent, 2026-10-02). The user checked production (649f92d) on a phone: "looks great on mobile" (2026-10-02). Not singled out: touch drag-to-reorder, first-load flash |
+| Production smoke test | passing (for 493e2a6); 649f92d only checked on the user's phone | Live site at 493e2a6, 2026-10-02: Vercel status `success` and a Production deployment for the merge commit (verifier); one Generate Random Route in Chrome drew a 5-stop A–E route with a road line (seen by the main agent only, not re-run by the verifier, to save quota). Earlier, on 8d1e8f6: `profile` injection, `?`/`#` suffix, invalid JSON, and 26 stops all returned 400 |
 | Abuse protection | verified (origin check in production) | Production, 2026-10-02 (493e2a6): `Origin: https://evil.example.com` → 403 on `/api/route` and `/api/optimize` (repeated by the verifier), and the browser's own requests weren't blocked behind Vercel's headers (the route loaded). Locally (1ae54d7, 2026-10-01): 19 offline guard tests; curl 10×200 then 429 with `Retry-After: 57`; rate-limit and ORS 503 alerts in the browser. The 429 limits haven't been exercised in production |
 | Loading state | verified | Production, 2026-10-02 (493e2a6): the spinner with "Finding your route..." and the "Loading..." button appeared during Generate (main agent's observation). Locally with held fake responses: one request per double-click, form/tabs/Export locked, alert only after the spinner cleared (e683523, 2026-10-01) |
 | Input validation | verified | 14 bad requests → 400 locally (incl. 4 injection attempts), valid requests 200, live Generate; repeated against production on 8d1e8f6 (7c78bbe, 2026-10-01) |
-| Bug fixes (QR link, unfound addresses, stale Export, map snap-back, import) | verified | Each original repro rerun in Chrome with faked API responses; QR decoded and opened in Google Maps as the right 5-stop route; generated PDF listed only routed stops (90d43ae, 2026-10-01) |
-| Import parser and Maps URL helper | passing | Offline Node scripts against the real modules: 36/36 cases (90d43ae, 2026-10-01). Scripts live in the session scratchpad, not the repo |
+| Bug fixes (QR link, unfound addresses, stale Export, map snap-back, import) | verified | Each original repro rerun in Chrome with faked API responses; QR decoded and opened in Google Maps as the right 5-stop route; generated PDF listed only routed stops (90d43ae, 2026-10-01). The QR evidence was for the old `/dir/` link format; the current `api=1` link is covered by the Open in Google Maps row |
+| Import parser | passing | Offline Node scripts against the real modules: 36/36 cases including the then Maps URL helper (90d43ae, 2026-10-01). Scripts live in the session scratchpad, not the repo |
 | Demo addresses | verified | All 43 geocoded to the expected place (the 6 entries corrected during the check landed ≤0.1 km from the real spot), and one ORS directions call through all 43 returned 200 (aa5a0b5, 2026-10-01) |
 | Geocode spacing (`/api/geocode`) | logic checked | Offline Node test with a mocked fetch: 3 concurrent requests → 6 calls 1098–1101 ms apart (2026-10-01). Not tested against Nominatim under real concurrency |
 | ARCHITECTURE.md diagrams | render | All 3 Mermaid blocks parsed and rendered with Mermaid 11 in Chrome (2026-10-01) |
@@ -82,10 +87,11 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
 - If any stop is more than 1 km from a road (e.g. an island), ORS fails the whole
   route: markers show but there's no route line and no message.
 - No timeouts on outgoing ORS or Nominatim calls (ORS optimize once took 15.2 s).
-- Mobile layout isn't on production yet and hasn't been tried on a real phone.
-  Phones get the desktop layout from the server until JavaScript loads, and
+- Phones get the desktop layout from the server until JavaScript loads, and
   crossing a width breakpoint (e.g. rotating a tablet) remounts the layout,
   resetting the divider and map view.
+- Google Maps links carry every stop, but Google documents about 9 stops between
+  start and end, so long routes may open incomplete (accepted for a demo).
 - `/api/autocomplete` (unused, OpenCage) has no origin check or rate limit.
 - The README says MIT, but there's no `LICENSE` file.
 - `next lint` is deprecated and will be removed in Next 16.
