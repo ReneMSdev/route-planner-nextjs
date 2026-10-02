@@ -1,6 +1,6 @@
 # Status
 
-_Last verified: 2026-10-01 at 1ae54d7 (`working`). `working` was then merged into `main` (loading state, abuse protection, docs, screenshot) and deployed **without a production smoke test**; the last production check was on 8d1e8f6. See TODO._
+_Last verified: 2026-10-02. Production smoke-tested at merge commit 493e2a6 (`main`, same tree as `working` at eda2a9f). Lint and build last ran on 2026-10-01 at 1ae54d7; no code has changed since._
 
 Portfolio/demo app, live on Vercel. Geocoding uses Nominatim and map tiles use
 OpenStreetMap, neither with a key; OpenRouteService (ORS) handles optimization
@@ -54,9 +54,9 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
 |---|---|---|
 | Lint | passing | `npm run lint`: "No ESLint warnings or errors" (1ae54d7, 2026-10-01) |
 | Build | passing | `next build` in a scratch copy of the tree (the dev server was using `.next`): compiled, 8/8 static pages (1ae54d7, 2026-10-01) |
-| Production smoke test | passing (for 8d1e8f6) | Live site, 2026-10-01: a Twin Peaks → Muir Woods → Sausalito route drew a line (ccc80d3). On 8d1e8f6, `profile` injection, `?`/`#` suffix, invalid JSON, and 26 stops all returned 400, and a valid route returned data. Loading state and abuse protection are not in production yet |
-| Abuse protection | verified locally | 19 offline guard tests (origin cases, minute/day limits and resets, per-IP/per-route isolation, key rotation); curl against the dev server (403 without a matching Origin, 10×200 then 429 with `Retry-After: 57`); browser: rate-limit alert, faked ORS 503s gave one alert with both warnings, live Generate all 200 (1ae54d7, 2026-10-01). Not yet checked against Vercel's real headers |
-| Loading state | verified locally | Browser with held fake responses: one request per double-click, correct button label, form/tabs/Export locked, alert only after the spinner cleared; one live run where ORS optimize took 15.2 s with the spinner up throughout (e683523, 2026-10-01) |
+| Production smoke test | passing | Live site at 493e2a6, 2026-10-02: Vercel status `success` and a Production deployment for the merge commit (verifier); one Generate Random Route in Chrome drew a 5-stop A–E route with a road line (seen by the main agent only, not re-run by the verifier, to save quota). Earlier, on 8d1e8f6: `profile` injection, `?`/`#` suffix, invalid JSON, and 26 stops all returned 400 |
+| Abuse protection | verified (origin check in production) | Production, 2026-10-02 (493e2a6): `Origin: https://evil.example.com` → 403 on `/api/route` and `/api/optimize` (repeated by the verifier), and the browser's own requests weren't blocked behind Vercel's headers (the route loaded). Locally (1ae54d7, 2026-10-01): 19 offline guard tests; curl 10×200 then 429 with `Retry-After: 57`; rate-limit and ORS 503 alerts in the browser. The 429 limits haven't been exercised in production |
+| Loading state | verified | Production, 2026-10-02 (493e2a6): the spinner with "Finding your route..." and the "Loading..." button appeared during Generate (main agent's observation). Locally with held fake responses: one request per double-click, form/tabs/Export locked, alert only after the spinner cleared (e683523, 2026-10-01) |
 | Input validation | verified | 14 bad requests → 400 locally (incl. 4 injection attempts), valid requests 200, live Generate; repeated against production on 8d1e8f6 (7c78bbe, 2026-10-01) |
 | Bug fixes (QR link, unfound addresses, stale Export, map snap-back, import) | verified | Each original repro rerun in Chrome with faked API responses; QR decoded and opened in Google Maps as the right 5-stop route; generated PDF listed only routed stops (90d43ae, 2026-10-01) |
 | Import parser and Maps URL helper | passing | Offline Node scripts against the real modules: 36/36 cases (90d43ae, 2026-10-01). Scripts live in the session scratchpad, not the repo |
@@ -75,8 +75,6 @@ and PDF/QR export. API routes in `src/app/api/` proxy the external services.
   route: markers show but there's no route line and no message.
 - No timeouts on outgoing ORS or Nominatim calls (ORS optimize once took 15.2 s).
 - Not mobile responsive (per the user).
-- Production hasn't been smoke-tested since the loading state and abuse
-  protection were merged (next session, per TODO).
 - `/api/autocomplete` (unused, OpenCage) has no origin check or rate limit.
 - The README says MIT, but there's no `LICENSE` file.
 - `next lint` is deprecated and will be removed in Next 16.
