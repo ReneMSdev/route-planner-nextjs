@@ -78,6 +78,8 @@ src
 │   ├── ExportModal.jsx    # PDF download, Google Maps link, and QR code (desktop)
 │   ├── ClientOnly.jsx     # Renders children only after mount
 │   └── ui                 # shadcn/ui components
+├── hooks
+│   └── useMediaQuery.js   # Screen-width checks that pick the layout
 ├── lib
 │   ├── apiGuard.js        # Same-origin check and per-IP rate limits
 │   ├── routeInput.js      # Input validation for the routing APIs

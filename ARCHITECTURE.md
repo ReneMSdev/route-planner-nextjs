@@ -136,7 +136,11 @@ in `page.js` and placed in one of two layouts:
 - **Below 768px:** a Stops / Map switch. Both views stay mounted and the
   inactive one is hidden with CSS, so the form and map keep their state. The
   map view has its own Export button, and the Export dialog puts "Open in
-  Google Maps" first and hides the QR code.
+  Google Maps" first and hides the QR code. The layout is pinned to the
+  screen (`fixed inset-0`) so only the stops list scrolls, and `html`/`body`
+  have `overscroll-behavior: none` with a violet background. Without that,
+  iOS passed swipes past the end of the list on to the page, which hid the
+  header, triggered pull-to-refresh, and showed a white background.
 - **768px and up:** the resizable two columns. The address column starts at 50%
   (768–1023px), 40% (1024–1279px), or 30% (1280px+); the panel group is keyed
   on that size because `defaultSize` only applies on mount.
