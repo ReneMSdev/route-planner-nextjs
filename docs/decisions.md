@@ -92,3 +92,17 @@ Vercel domain until registered); OpenFreeMap "Positron" (free and keyless, but
 vector tiles needing MapLibre and a Leaflet plugin).
 **Why:** The user chose to keep it as is for now. Stadia is the smallest change
 if a cleaner look is wanted later.
+
+## 2026-10-02: Mobile layout is a Stops / Map switch, with width-based column splits above it
+
+**Decision:** Below 768px, show one view at a time behind a Stops / Map switch,
+jumping to the map on submit. From 768px keep the resizable two columns, starting
+the address column at 50% (768–1023px), 40% (1024–1279px), and 30% (1280px+).
+**Alternatives:** map stacked above the form; a draggable bottom sheet over a
+full-screen map (Google Maps style); a vertical resizable split; a single 30%
+split for all non-phone widths.
+**Why:** The user picked the switch: both views get the full screen, and it
+avoids the bottom sheet's gesture conflicts with Leaflet panning and drag-to-reorder.
+A bottom sheet is still possible later. The 50% / 40% splits keep the address
+column at least 384px wide on tablets and small laptops, where 30% made
+addresses wrap to three lines (user's choice, 2026-10-02).

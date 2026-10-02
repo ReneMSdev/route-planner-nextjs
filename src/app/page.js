@@ -296,7 +296,7 @@ export default function Home() {
           <Tabs
             value={mobileView}
             onValueChange={setMobileView}
-            className='border-b border-violet-200 px-4 py-2'
+            className='border-b border-violet-300 bg-violet-200 px-4 pt-1 pb-3'
           >
             <TabsList className='grid w-full grid-cols-2'>
               <TabsTrigger

@@ -1,7 +1,7 @@
 # TODO
 
 ## Now (v1.1.0)
-- [ ] Make the app mobile responsive
+- [ ] Mobile layout (`mobile-design`): open the Vercel Preview on a real phone and check the 375px layout, touch drag-to-reorder (the handle has `touch-none` but it's untested), and whether the desktop layout flashes on first load. Then merge `mobile-design` → `working` → `main` and smoke-test production
 - [ ] Tag v1.1.0 after the mobile layout ships (`npm version minor`, then push the commit and the `v1.1.0` tag). Production has run untagged changes since v1.0.0: Nominatim/OSM switch, purple theme, bug fixes, input validation
 - [ ] Add timeouts (AbortController; ORS optimize once took 15.2 s on 2026-10-01) to the outgoing ORS calls in `/api/optimize` and `/api/route` and the Nominatim call in `/api/geocode`, returning a clear error instead of hanging
 - [ ] Delete `/api/autocomplete` (still OpenCage, nothing calls it, and Nominatim's policy forbids autocomplete) or replace it with an allowed service; it also has no origin check or rate limit
@@ -26,6 +26,8 @@ Suspected (not reproduced)
 - [ ] Google Maps `/dir/` links may be cut to about 10 stops on mobile, and a 25-stop URL makes a dense QR at 200 px
 
 ## Next
+- [ ] Mobile layout follow-ups from the verifier (00ac5dc, none blocking): `max-h-none` overriding the form's `max-h-[70vh]` only works by CSS order (tailwind-merge 3.2.0 keeps both); a map that mounts hidden with a route (desktop → mobile resize on the Stops view) may fit at the wrong zoom; the partial-success "couldn't find" alert shows while staying on the Map view; `useMediaQuery` re-subscribes on every render (inline `subscribe`); the Stops/Map triggers have no `TabsContent`, so `aria-controls` points nowhere; tablet/laptop widths remount the panel group right after hydration
+- [ ] Add `src/hooks/` to the Layout section of `CLAUDE.md` once `mobile-design` is merged
 - [ ] Find out why the first route submit on 2026-10-01 hadn't rendered after ~9s while the second worked (possibly a slow upstream; see the timeout item)
 - [ ] Geocode cache: add a size limit or TTL, normalize inner whitespace in the key, and don't cache unparseable responses as "not found"
 - [ ] Stop sending Nominatim's raw status/detail to the client in the `/api/geocode` 502 body; log them on the server instead
@@ -43,6 +45,7 @@ Suspected (not reproduced)
 - [ ] If traffic grows: rate limiting (Nominatim spacing and the per-IP limits) is per serverless instance, so a shared store (e.g. Upstash/Vercel KV) or Vercel Firewall rules would be needed for real guarantees
 
 ## Done recently
+- [x] Mobile layout on `mobile-design`: Stops / Map switch below 768px (map on submit, back to Stops on failure, floating Export), two columns from 768px starting at 50% / 40% / 30% by width, map redraws on container resize, touch-none drag handle, `min-w-[300px]` typo fixed. Lint and build pass, desktop Chrome checks done; real phone untested (2026-10-02, d1bd170, 00ac5dc)
 - [x] Production smoke test of the 2026-10-01 merge (493e2a6): Vercel Production deploy `success`, foreign Origin → 403 on `/api/route` and `/api/optimize`, and one Generate Random Route in Chrome passed the origin check, showed the spinner and "Loading...", and drew a 5-stop route line (2026-10-02)
 - [x] README rewritten for the current app (Nominatim/ORS, `ORS_API_KEY` only, Next.js 15, features and limits, folder structure) and ARCHITECTURE.md added with three Mermaid diagrams, all checked to render (2026-10-01, c597c2d)
 - [x] Abuse protection (`src/lib/apiGuard.js`) on `/api/geocode`, `/api/optimize`, `/api/route`: same-origin check (403 otherwise) and a per-IP limit of 10/min and 100/day per route (429 with Retry-After and a friendly message), in memory per server instance. ORS 403/429 become a "demo quota used up" 503, and the page now tells the user when optimize or the road route fails for those reasons instead of failing silently. `/api/optimize` returns 502 for other ORS errors instead of forwarding ORS's status (2026-10-01, 1ae54d7)
@@ -53,5 +56,3 @@ Suspected (not reproduced)
 - [x] Google Maps link / QR fixed (was appending the stop index to every coordinate); no QR without a route. QR decoded and opened in Google Maps as the right 5-stop route (2026-10-01, 90d43ae)
 - [x] Addresses that fail to geocode are kept at the end of the list and named in an alert (shown after the route loads) instead of silently removed (2026-10-01, 90d43ae)
 - [x] Export shows only while a route is on the map; a failed submit clears the old route; the PDF lists only routed stops, matching the map and QR (2026-10-01, 90d43ae)
-- [x] Map no longer jumps back to the route on unrelated re-renders such as typing; new routes still fit. Also fixed the swapped scroll timer arguments in Generate (2026-10-01, 90d43ae)
-- [x] Import: case/space-insensitive headers with aliases, a single Address column or Street + City (State/Zip optional), full addresses in an Address column not duplicated, numeric XLSX ZIPs zero-padded, empty/corrupt files handled, a message when nothing is found or a file is rejected, and a column hint in the UI (2026-10-01, 90d43ae)
