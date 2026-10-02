@@ -1,8 +1,9 @@
 # Route Boss (route-planner-nextjs)
 
 Route planning web app: enter or import addresses, geocode them, optimize the
-stop order, show the route on a map, and export it as a PDF or a Google Maps QR
-code. It's a portfolio/demo project, live at https://route-planner-nextjs.vercel.app.
+stop order, show the route on a map, and export it as a PDF or open it in Google
+Maps (a button, plus a QR code on desktop). It's a portfolio/demo project, live
+at https://route-planner-nextjs.vercel.app.
 
 ## Stack
 
@@ -16,6 +17,7 @@ External APIs: Nominatim/OpenStreetMap (geocoding, no key) and OpenRouteService
 - `src/app/page.js`: the main (and only) page.
 - `src/app/api/{autocomplete,geocode,optimize,route}/route.js`: server-side proxies. `geocode` uses Nominatim; `optimize` and `route` use ORS. `autocomplete` still targets OpenCage and nothing calls it.
 - `src/components/`: AddressForm, ImportForm (CSV/XLS parsing), MapDisplay, ExportModal; `ui/` holds the shadcn components.
+- `src/hooks/`: client React hooks. `useMediaQuery.js` picks the phone, tablet, or desktop layout.
 - `src/utils/`: client helpers that call the API routes, plus PDF and Google Maps URL helpers.
 - `src/lib/`: server-side helpers for the API routes: `apiGuard.js` (same-origin check, per-IP rate limits) and `routeInput.js` (ORS input validation). `utils.js` is shadcn's `cn()`.
 - `ARCHITECTURE.md` (repo root): how the pieces fit together, with Mermaid diagrams. Update it when the data flow or API routes change.

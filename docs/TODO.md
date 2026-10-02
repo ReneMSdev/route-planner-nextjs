@@ -28,7 +28,6 @@ Suspected (not reproduced)
 
 ## Next
 - [ ] Mobile layout follow-ups from the verifier (00ac5dc, none blocking): `max-h-none` overriding the form's `max-h-[70vh]` only works by CSS order (tailwind-merge 3.2.0 keeps both); a map that mounts hidden with a route (desktop → mobile resize on the Stops view) may fit at the wrong zoom; the partial-success "couldn't find" alert shows while staying on the Map view; `useMediaQuery` re-subscribes on every render (inline `subscribe`); the Stops/Map triggers have no `TabsContent`, so `aria-controls` points nowhere; tablet/laptop widths remount the panel group right after hydration
-- [ ] `CLAUDE.md`: add `src/hooks/` to the Layout section, and change "a Google Maps QR code" in the intro to mention the Open in Google Maps button
 - [ ] Find out why the first route submit on 2026-10-01 hadn't rendered after ~9s while the second worked (possibly a slow upstream; see the timeout item)
 - [ ] Geocode cache: add a size limit or TTL, normalize inner whitespace in the key, and don't cache unparseable responses as "not found"
 - [ ] Stop sending Nominatim's raw status/detail to the client in the `/api/geocode` 502 body; log them on the server instead
