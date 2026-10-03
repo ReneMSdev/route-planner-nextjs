@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, useMap, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -19,28 +19,50 @@ const validateLatLng = (arr = []) =>
     (p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])
   )
 
-// Defined at module level so it isn't remounted on every render. It refits only
-// when a new route arrives, not when the user is zooming or typing.
-function FitBounds({ coordinates, roadPolyline }) {
-  const map = useMap()
-  useEffect(() => {
-    const pts = [...validateLatLng(coordinates), ...validateLatLng(roadPolyline)]
-    if (pts.length === 0) return
-    map.fitBounds(L.latLngBounds(pts), { padding: [50, 50] })
-  }, [coordinates, roadPolyline, map])
-  return null
+const isZeroSize = (map) => {
+  const { x, y } = map.getSize()
+  return x === 0 || y === 0
 }
 
-// Leaflet only notices window resizes. This keeps the map filling its container
-// when the container changes size on its own: dragging the desktop panel handle,
-// or the mobile Map view going from hidden to shown.
-function TrackContainerSize() {
+// Defined at module level so it isn't remounted on every render. It refits only
+// when a new route arrives, not when the user is zooming or typing.
+//
+// Leaflet only notices window resizes, so it also watches the container: dragging
+// the desktop panel handle, or the mobile Map view going from hidden to shown.
+// A route that arrives while the map is hidden (0x0, e.g. after switching from
+// the desktop to the phone layout on the Stops view) can't be fitted then;
+// Leaflet would pick its maximum zoom. It's fitted once the map has a size.
+function FitBounds({ coordinates, roadPolyline }) {
   const map = useMap()
+  const pendingFit = useRef(null)
+
   useEffect(() => {
-    const observer = new ResizeObserver(() => map.invalidateSize())
+    const pts = [...validateLatLng(coordinates), ...validateLatLng(roadPolyline)]
+    if (pts.length === 0) {
+      pendingFit.current = null
+      return
+    }
+    const bounds = L.latLngBounds(pts)
+    if (isZeroSize(map)) {
+      pendingFit.current = bounds
+      return
+    }
+    pendingFit.current = null
+    map.fitBounds(bounds, { padding: [50, 50] })
+  }, [coordinates, roadPolyline, map])
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize()
+      if (pendingFit.current && !isZeroSize(map)) {
+        map.fitBounds(pendingFit.current, { padding: [50, 50] })
+        pendingFit.current = null
+      }
+    })
     observer.observe(map.getContainer())
     return () => observer.disconnect()
   }, [map])
+
   return null
 }
 
@@ -61,8 +83,6 @@ export default function MapDisplay({ coordinates, roadPolyline }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         maxZoom={19}
       />
-
-      <TrackContainerSize />
 
       <FitBounds
         coordinates={coordinates}

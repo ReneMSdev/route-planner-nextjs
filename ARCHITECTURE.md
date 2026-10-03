@@ -149,7 +149,9 @@ Crossing 768px swaps layouts, and crossing 1024px or 1280px remounts the
 columns, so the divider position and map view reset. Leaflet only reacts to
 window resizes, so `MapDisplay` watches its own container with a
 `ResizeObserver` and calls `invalidateSize()` when the container is resized or
-shown.
+shown. A route that arrives while the map is hidden (0×0, e.g. switching from
+the desktop to the phone layout on the Stops view) isn't fitted then, because
+Leaflet would pick its maximum zoom; it's fitted once the map has a size.
 
 ## When things go wrong
 
