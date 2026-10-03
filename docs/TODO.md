@@ -14,7 +14,6 @@
 
 ## Bugs (found in the 2026-10-01 bug hunt and checked by the verifier subagent against 89fc4ee, unless dated otherwise)
 Medium
-- [ ] Blank map after switching from the desktop to the phone layout with a route loaded while the Stops view shows: the Map view opens zoomed all the way in on open water. The map is mounted hidden (0×0), so `FitBounds` fits the route to an empty container, and `invalidateSize()` on show doesn't refit. Rotating a phone from landscape (≥768px) to portrait can trigger it. Reproduced on production at 500px, 2026-10-02; submitting again fixes the view. Fix idea: refit in `FitBounds` when the container goes from zero size to visible
 - [ ] Unreachable stop: when ORS can't route (e.g. an island, or a point more than 1 km from a road), the page shows markers but no route line and no message (console.warn only); `/api/route` now snaps up to 1 km, which fixed the Muir Woods demo stop
 - [ ] Export text says "optimized" even when optimization fell back to input order (the PDF, QR, and map now all come from the same submitted route; the form can still differ after later edits, which is expected)
 Low
@@ -24,11 +23,12 @@ Low
 - [ ] `handleDragEnd` reads `over.id` without optional chaining; throws if a drag ends with no target
 - [ ] `AddressField.jsx` imports `@dnd-kit/utilities`, which isn't in `package.json`; it only resolves because `@dnd-kit/sortable` installs it. Add it as a direct dependency (found by the verifier, 2026-10-02)
 Suspected (not reproduced)
+- [ ] Drag-to-reorder: stops are kept inside the stop list (`restrictToParentElement`), but dnd-kit adds auto-scroll movement after that limit, so on a long list that scrolls during a drag a stop may briefly show outside the list (where it lands is still limited). Found by reading dnd-kit source (verifier, 2026-10-02); turning `autoScroll` off would block dragging to off-screen stops
 - [ ] `/api/optimize` ignores ORS `unassigned` jobs, which would silently drop stops; not triggered by an unreachable point (ORS errored instead)
 - [ ] Long routes in Google Maps: the documented `api=1` link allows about 9 stops between start and end (Google's docs, per the verifier from memory; possibly fewer in a phone browser without the app), so a long imported route may open incomplete, and a 25-stop URL makes a dense QR at 200 px. Accepted for a demo (user, 2026-10-02); not handled in code
 
 ## Next
-- [ ] Mobile layout follow-ups from the verifier (00ac5dc, none blocking): `max-h-none` overriding the form's `max-h-[70vh]` only works by CSS order (tailwind-merge 3.2.0 keeps both); a map that mounts hidden with a route (desktop → mobile resize on the Stops view) may fit at the wrong zoom; the partial-success "couldn't find" alert shows while staying on the Map view; `useMediaQuery` re-subscribes on every render (inline `subscribe`); the Stops/Map triggers have no `TabsContent`, so `aria-controls` points nowhere; tablet/laptop widths remount the panel group right after hydration
+- [ ] Mobile layout follow-ups from the verifier (00ac5dc, none blocking): `max-h-none` overriding the form's `max-h-[70vh]` only works by CSS order (tailwind-merge 3.2.0 keeps both); the partial-success "couldn't find" alert shows while staying on the Map view; `useMediaQuery` re-subscribes on every render (inline `subscribe`); the Stops/Map triggers have no `TabsContent`, so `aria-controls` points nowhere; tablet/laptop widths remount the panel group right after hydration
 - [ ] Find out why the first route submit on 2026-10-01 hadn't rendered after ~9s while the second worked (possibly a slow upstream; see the timeout item)
 - [ ] Geocode cache: add a size limit or TTL, normalize inner whitespace in the key, and don't cache unparseable responses as "not found"
 - [ ] Stop sending Nominatim's raw status/detail to the client in the `/api/geocode` 502 body; log them on the server instead
@@ -46,6 +46,7 @@ Suspected (not reproduced)
 - [ ] If traffic grows: rate limiting (Nominatim spacing and the per-IP limits) is per serverless instance, so a shared store (e.g. Upstash/Vercel KV) or Vercel Firewall rules would be needed for real guarantees
 
 ## Done recently
+- [x] Blank map after switching from the desktop to the phone layout on the Stops view (map mounted hidden fitted the route at max zoom): `FitBounds` now defers the fit until the map has a size. Verifier confirmed against Leaflet 1.9.4 source; on localhost the Map view showed all 5 markers after the switch, user zoom kept across view switches, desktop still fits; lint and build pass (2026-10-02)
 - [x] Open in Google Maps checked on a phone: on the user's iPhone the button opens the Google Maps app with the route, and the desktop QR code scans (production, 2026-10-02)
 - [x] Mobile scroll fix: the phone layout is pinned to the screen, the stops list contains its overscroll, `html`/`body` have `overscroll-behavior: none` and a violet background, `theme-color` set. Verifier confirmed the code; the user confirmed on an iPhone in production (939c82f, 864dc59, 2026-10-02)
 - [x] New favicon: violet circle with a white map pin (`favicon.svg`), with a 32×32 PNG and a 180×180 Apple touch icon rendered from it; in production (98087b0, 2026-10-02)
@@ -56,4 +57,3 @@ Suspected (not reproduced)
 - [x] Production smoke test of the 2026-10-01 merge (493e2a6): Vercel Production deploy `success`, foreign Origin → 403 on `/api/route` and `/api/optimize`, and one Generate Random Route in Chrome passed the origin check, showed the spinner and "Loading...", and drew a 5-stop route line (2026-10-02)
 - [x] README rewritten for the current app (Nominatim/ORS, `ORS_API_KEY` only, Next.js 15, features and limits, folder structure) and ARCHITECTURE.md added with three Mermaid diagrams, all checked to render (2026-10-01, c597c2d)
 - [x] Abuse protection (`src/lib/apiGuard.js`) on `/api/geocode`, `/api/optimize`, `/api/route`: same-origin check (403 otherwise) and a per-IP limit of 10/min and 100/day per route (429 with Retry-After and a friendly message), in memory per server instance. ORS 403/429 become a "demo quota used up" 503, and the page now tells the user when optimize or the road route fails for those reasons instead of failing silently. `/api/optimize` returns 502 for other ORS errors instead of forwarding ORS's status (2026-10-01, 1ae54d7)
-- [x] Loading state: spinner with "Finding your route…" over the map, the clicked button reads "Loading...", Submit/Generate/Export, the address fields, and the Line/Import tabs are disabled, and a second submit is ignored while one runs. Fixes the submit race, lost mid-request edits, and double-click Nominatim calls from the UI; two tabs or clients can still send overlapping requests, and `/api/geocode` doesn't de-duplicate in-flight lookups. Alerts wait until the spinner clears (2026-10-01, e683523)
