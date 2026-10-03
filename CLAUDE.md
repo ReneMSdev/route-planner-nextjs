@@ -15,7 +15,7 @@ External APIs: Nominatim/OpenStreetMap (geocoding, no key) and OpenRouteService
 ## Layout
 
 - `src/app/page.js`: the main (and only) page.
-- `src/app/api/{autocomplete,geocode,optimize,route}/route.js`: server-side proxies. `geocode` uses Nominatim; `optimize` and `route` use ORS. `autocomplete` still targets OpenCage and nothing calls it.
+- `src/app/api/{geocode,optimize,route}/route.js`: server-side proxies. `geocode` uses Nominatim; `optimize` and `route` use ORS.
 - `src/components/`: AddressForm, ImportForm (CSV/XLS parsing), MapDisplay, ExportModal; `ui/` holds the shadcn components.
 - `src/hooks/`: client React hooks. `useMediaQuery.js` picks the phone, tablet, or desktop layout.
 - `src/utils/`: client helpers that call the API routes, plus PDF and Google Maps URL helpers.

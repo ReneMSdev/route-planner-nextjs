@@ -4,9 +4,9 @@ Route Boss is a single-page Next.js 15 app (App Router, plain JavaScript). The
 browser does the UI, map rendering, file parsing, and exports. Three server
 routes in `src/app/api/` proxy the external APIs the app uses, so the
 OpenRouteService key stays on the server and those calls are checked and
-rate-limited in one place. (A fourth route, `/api/autocomplete`, is left over
-from the OpenCage days; nothing calls it and it isn't guarded. See Known gaps.) The app has no database: route state lives in React state in the
-browser, and the only server-side state is in-memory caches and counters.
+rate-limited in one place. The app has no database: route state lives in React
+state in the browser, and the only server-side state is in-memory caches and
+counters.
 
 ## System overview
 
@@ -197,6 +197,3 @@ The open items are tracked in `docs/TODO.md`. The architectural ones:
 
 - Rate limits and the Nominatim queue are per server instance, not shared.
 - There are no timeouts on outgoing calls to ORS or Nominatim.
-- `/api/autocomplete` still targets OpenCage, nothing calls it, and it has no
-  origin check or rate limit. It returns 500 without `OPENCAGE_API_KEY`, which
-  is no longer set up; deleting it is in TODO.

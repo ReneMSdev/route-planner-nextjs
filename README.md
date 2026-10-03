@@ -69,8 +69,7 @@ src
 │   └── api                # Server routes that proxy the external APIs
 │       ├── geocode        #   Nominatim, rate-limited to 1 lookup/second
 │       ├── optimize       #   OpenRouteService optimization
-│       ├── route          #   OpenRouteService directions (road route)
-│       └── autocomplete   #   Unused leftover (OpenCage); slated for removal
+│       └── route          #   OpenRouteService directions (road route)
 ├── components
 │   ├── AddressForm        # Line-by-line entry, Submit / Generate / Export
 │   ├── ImportForm         # Drag-and-drop file import and parsing

@@ -19,7 +19,6 @@ visitors, and `ARCHITECTURE.md` describes how it fits together.
 entry, geocoding (Nominatim, US only), route optimization and a road polyline
 (ORS, `ORS_API_KEY` on the server), a Leaflet map on OSM tiles with A–Z markers,
 and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API routes in `src/app/api/` proxy the external services.
-`/api/autocomplete` still targets OpenCage, but nothing calls it.
 
 - **API guard (`src/lib/apiGuard.js`):** all three API routes first check that
   the `Origin` matches the request's host (403 otherwise) and apply a per-IP limit
@@ -102,7 +101,6 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
   swipe back/forward on desktop (found by the verifier; see TODO).
 - Google Maps links carry every stop, but Google documents about 9 stops between
   start and end, so long routes may open incomplete (accepted for a demo).
-- `/api/autocomplete` (unused, OpenCage) has no origin check or rate limit.
 - The README says MIT, but there's no `LICENSE` file.
 - `next lint` is deprecated and will be removed in Next 16.
 - Local builds warn about a stray `~/package-lock.json` that Next picks up as the
