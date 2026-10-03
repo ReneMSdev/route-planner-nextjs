@@ -23,6 +23,7 @@ Low
 - [ ] `handleDragEnd` reads `over.id` without optional chaining; throws if a drag ends with no target
 - [ ] `AddressField.jsx` imports `@dnd-kit/utilities`, which isn't in `package.json`; it only resolves because `@dnd-kit/sortable` installs it. Add it as a direct dependency (found by the verifier, 2026-10-02)
 Suspected (not reproduced)
+- [ ] Drag-to-reorder: stops are kept inside the stop list (`restrictToParentElement`), but dnd-kit adds auto-scroll movement after that limit, so on a long list that scrolls during a drag a stop may briefly show outside the list (where it lands is still limited). Found by reading dnd-kit source (verifier, 2026-10-02); turning `autoScroll` off would block dragging to off-screen stops
 - [ ] `/api/optimize` ignores ORS `unassigned` jobs, which would silently drop stops; not triggered by an unreachable point (ORS errored instead)
 - [ ] Long routes in Google Maps: the documented `api=1` link allows about 9 stops between start and end (Google's docs, per the verifier from memory; possibly fewer in a phone browser without the app), so a long imported route may open incomplete, and a 25-stop URL makes a dense QR at 200 px. Accepted for a demo (user, 2026-10-02); not handled in code
 

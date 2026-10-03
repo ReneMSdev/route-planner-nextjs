@@ -2,6 +2,7 @@
 
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { useRef, useState } from 'react'
 import AddressField from './AddressField'
 import { Button } from '../ui/button'
@@ -92,27 +93,32 @@ export default function AddressForm({
         <p className='text-sm text-muted-foreground'>You may readjust by dragging</p>
       </CardHeader>
       <CardContent className='space-y-3  px-0 pb-8'>
+        {/* A dragged stop stays inside the list of stops (the wrapper div below),
+            so it can't cover the text above or the buttons below */}
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
         >
           <SortableContext
             items={stops.map((_, i) => `item-${i}`)}
             strategy={verticalListSortingStrategy}
           >
-            {stops.map((value, i) => (
-              <AddressField
-                key={`item-${i}`}
-                id={`item-${i}`}
-                index={i}
-                label={String.fromCharCode(65 + i)}
-                value={value}
-                onChange={(val) => handleAddressChange(i, val)}
-                onRemove={() => handleRemoveStop(i)}
-                canRemove={stops.length > 2}
-                disabled={loading}
-              />
-            ))}
+            <div className='space-y-3'>
+              {stops.map((value, i) => (
+                <AddressField
+                  key={`item-${i}`}
+                  id={`item-${i}`}
+                  index={i}
+                  label={String.fromCharCode(65 + i)}
+                  value={value}
+                  onChange={(val) => handleAddressChange(i, val)}
+                  onRemove={() => handleRemoveStop(i)}
+                  canRemove={stops.length > 2}
+                  disabled={loading}
+                />
+              ))}
+            </div>
           </SortableContext>
         </DndContext>
 
