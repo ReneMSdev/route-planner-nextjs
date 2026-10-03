@@ -4,10 +4,12 @@ _Last verified: 2026-10-02 at 939c82f (`working`). Production is `main` at 864dc
 
 Portfolio/demo app, live on Vercel. Geocoding uses Nominatim and map tiles use
 OpenStreetMap, neither with a key; OpenRouteService (ORS) handles optimization
-and road routes with a server-side key. Since v1.0.0 the app has gained a light
-purple theme, rebalanced demo addresses, fixes from a bug hunt, input
-validation on the ORS routes, a loading state, basic abuse protection, and a
-mobile layout. v1.1.0 isn't tagged yet (see TODO).
+and road routes with a server-side key. The current release is v1.1.0
+(2026-10-02). Since v1.0.0 the app has switched to Nominatim and OSM tiles,
+gained a light purple theme, input validation on the ORS routes, a loading
+state, basic abuse protection, a mobile layout, an Open in Google Maps button,
+and a new favicon, and fixed the bugs from the 2026-10-01 bug hunt and several
+mobile issues. The unused `/api/autocomplete` route was removed.
 Production deploys from `main` (Vercel Production); pushes to other branches get
 Preview deploys. There are no automated tests, so lint, build, offline scripts,
 and manual browser checks are the checks. `README.md` describes the app for
@@ -19,7 +21,6 @@ visitors, and `ARCHITECTURE.md` describes how it fits together.
 entry, geocoding (Nominatim, US only), route optimization and a road polyline
 (ORS, `ORS_API_KEY` on the server), a Leaflet map on OSM tiles with A–Z markers,
 and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API routes in `src/app/api/` proxy the external services.
-`/api/autocomplete` still targets OpenCage, but nothing calls it.
 
 - **API guard (`src/lib/apiGuard.js`):** all three API routes first check that
   the `Origin` matches the request's host (403 otherwise) and apply a per-IP limit
@@ -102,7 +103,6 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
   swipe back/forward on desktop (found by the verifier; see TODO).
 - Google Maps links carry every stop, but Google documents about 9 stops between
   start and end, so long routes may open incomplete (accepted for a demo).
-- `/api/autocomplete` (unused, OpenCage) has no origin check or rate limit.
 - The README says MIT, but there's no `LICENSE` file.
 - `next lint` is deprecated and will be removed in Next 16.
 - Local builds warn about a stray `~/package-lock.json` that Next picks up as the
