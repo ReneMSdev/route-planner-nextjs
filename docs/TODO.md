@@ -4,7 +4,6 @@
 - [ ] Desktop trackpad swipe back/forward is disabled by `overscroll-behavior: none` on `html`/`body` (939c82f). Switch to `overscroll-behavior-y: none` to keep swipe navigation and still block pull-to-refresh, then recheck on the iPhone
 - [ ] On the iPhone, check the two fixes now in production (a66b73e): a dragged stop stops at the top and bottom of the stop list, and after rotating to landscape and back with a route on the Stops view, the Map view shows the route
 - [ ] On a phone, check whether the desktop layout flashes on first load (phones get the desktop layout from the server until JavaScript loads)
-- [ ] Tag v1.1.0 now that the mobile layout is in production (`npm version minor`, then push the commit and the `v1.1.0` tag). Production has run untagged changes since v1.0.0: Nominatim/OSM switch, purple theme, bug fixes, input validation, loading state, abuse protection, mobile layout
 - [ ] Add timeouts (AbortController; ORS optimize took 15.2 s on 2026-10-01 and about 40 s on production on 2026-10-02) to the outgoing ORS calls in `/api/optimize` and `/api/route` and the Nominatim call in `/api/geocode`, returning a clear error instead of hanging
 
 ## Abuse protection (ORS free quota: optimization ~500/day, directions ~2,000/day, 40/min each; a loop could burn the daily optimization quota in minutes)
@@ -46,6 +45,7 @@ Suspected (not reproduced)
 - [ ] If traffic grows: rate limiting (Nominatim spacing and the per-IP limits) is per serverless instance, so a shared store (e.g. Upstash/Vercel KV) or Vercel Firewall rules would be needed for real guarantees
 
 ## Done recently
+- [x] Released v1.1.0: `package.json` 1.0.0 → 1.1.0 and annotated tag `v1.1.0`, following the v1.0.0 pattern (2026-10-02)
 - [x] Deleted `/api/autocomplete`: unused, still targeted OpenCage (whose key was rejected), had no origin check or rate limit, and Nominatim's policy forbids autocomplete. References removed from CLAUDE.md, README, ARCHITECTURE, STATUS (2026-10-02)
 - [x] Dragged stops stay inside the stop list: the stops sit in their own wrapper and `DndContext` uses `restrictToVerticalAxis` and `restrictToParentElement`. Simulated touch drags at phone width on localhost stopped at the top and bottom slots and still reordered; verifier confirmed against the dnd-kit source; lint and build pass. In production (d5d40a8, merged as a66b73e); not yet checked on a phone (2026-10-02)
 - [x] Touch drag-to-reorder works on the user's iPhone (2026-10-02)
@@ -56,4 +56,3 @@ Suspected (not reproduced)
 - [x] Deleted merged branches `mobile-design` and `vercel/react-server-components-cve-vu-01hq2g` (Vercel's 2026-01-06 RCE patch, PR #2, merged and superseded by Next 15.5.27) locally and on GitHub (2026-10-02)
 - [x] Open in Google Maps button in the Export dialog (first and solid on phones, with the QR code hidden; after PDF on desktop, above the QR). The Maps link moved to Google's documented `api=1` format with `travelmode=driving`. Verifier confirmed the code; lint and build pass; on desktop Chrome the link opened Google Maps with the 5 stops in order. In production (4a0915b); real phone untested (2026-10-02, 5335e52)
 - [x] Mobile layout merged to `main` (649f92d) and pushed; the user checked production on a phone: "looks great on mobile" (2026-10-02)
-- [x] Mobile layout on `mobile-design`: Stops / Map switch below 768px (map on submit, back to Stops on failure, floating Export), two columns from 768px starting at 50% / 40% / 30% by width, map redraws on container resize, touch-none drag handle, `min-w-[300px]` typo fixed. Lint and build pass, desktop Chrome checks done (2026-10-02, d1bd170, 00ac5dc)

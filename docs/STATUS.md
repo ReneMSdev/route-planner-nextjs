@@ -4,10 +4,12 @@ _Last verified: 2026-10-02 at 939c82f (`working`). Production is `main` at 864dc
 
 Portfolio/demo app, live on Vercel. Geocoding uses Nominatim and map tiles use
 OpenStreetMap, neither with a key; OpenRouteService (ORS) handles optimization
-and road routes with a server-side key. Since v1.0.0 the app has gained a light
-purple theme, rebalanced demo addresses, fixes from a bug hunt, input
-validation on the ORS routes, a loading state, basic abuse protection, and a
-mobile layout. v1.1.0 isn't tagged yet (see TODO).
+and road routes with a server-side key. The current release is v1.1.0
+(2026-10-02). Since v1.0.0 the app has switched to Nominatim and OSM tiles,
+gained a light purple theme, input validation on the ORS routes, a loading
+state, basic abuse protection, a mobile layout, an Open in Google Maps button,
+and a new favicon, and fixed the bugs from the 2026-10-01 bug hunt and several
+mobile issues. The unused `/api/autocomplete` route was removed.
 Production deploys from `main` (Vercel Production); pushes to other branches get
 Preview deploys. There are no automated tests, so lint, build, offline scripts,
 and manual browser checks are the checks. `README.md` describes the app for
