@@ -20,7 +20,7 @@ External APIs: Nominatim/OpenStreetMap (geocoding, no key) and OpenRouteService
 - `src/hooks/`: client React hooks. `useMediaQuery.js` picks the phone, tablet, or desktop layout.
 - `src/utils/`: client helpers that call the API routes, plus PDF and Google Maps URL helpers.
 - `src/lib/`: server-side helpers for the API routes: `apiGuard.js` (same-origin check, per-IP rate limits) and `routeInput.js` (ORS input validation). `utils.js` is shadcn's `cn()`.
-- `ARCHITECTURE.md` (repo root): how the pieces fit together, with Mermaid diagrams. Update it when the data flow or API routes change.
+- `docs/architecture.md`: how the pieces fit together, with Mermaid diagrams. Update it when the data flow or API routes change.
 
 ## Commands
 
@@ -52,4 +52,4 @@ but `optimize` and `route` return 500 at runtime when it's missing.
 
 ## State
 
-Current state: `docs/STATUS.md`. Backlog: `docs/TODO.md`. Decisions: `docs/decisions.md`.
+Current state: `docs/status.md`. Backlog: `docs/todo.md`. Decisions: `docs/decisions.md`.

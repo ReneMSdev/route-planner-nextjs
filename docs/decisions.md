@@ -119,3 +119,14 @@ between start and end).
 **Why:** The documented format is the one Google supports across web, Android,
 and iOS, and `travelmode=driving` matches the ORS driving route. The user chose
 not to handle the stop limit since this is a demo (2026-10-02).
+
+## 2026-10-04: Lowercase file names in docs/
+
+**Decision:** Every file in `docs/` uses a lowercase, hyphenated name (`status.md`, `todo.md`,
+`decisions.md`, `architecture.md`, ...). A root `ARCHITECTURE.md` moves to
+`docs/architecture.md`. `README.md` and `CLAUDE.md` stay uppercase at the root. Earlier
+entries here keep the old names as written.
+**Alternatives:** Keep the mixed casing (uppercase `STATUS.md`/`TODO.md`, lowercase
+`decisions.md`).
+**Why:** The user wanted consistent names. Lowercase with hyphens is the common convention
+inside docs folders. Changed at the same time in the global config (`~/Dev/claude-config`).

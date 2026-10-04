@@ -3,7 +3,7 @@
 // (parallel Vercel instances each keep their own counts). That stops casual
 // looping, not a determined attacker. The client IP comes from
 // x-forwarded-for, which Vercel overwrites; on other hosts it can be spoofed.
-// See docs/TODO.md for a shared store.
+// See docs/todo.md for a shared store.
 import { NextResponse } from 'next/server'
 
 const LIMITS = [
