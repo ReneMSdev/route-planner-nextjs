@@ -193,7 +193,7 @@ CI and no test suite; lint and build are the checks (see `CLAUDE.md`).
 
 ## Known gaps
 
-The open items are tracked in `docs/TODO.md`. The architectural ones:
+The open items are tracked in `docs/todo.md`. The architectural ones:
 
 - Rate limits and the Nominatim queue are per server instance, not shared.
 - There are no timeouts on outgoing calls to ORS or Nominatim.

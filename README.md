@@ -57,7 +57,7 @@ Limits:
 | QR code | next-qrcode |
 | Hosting | Vercel |
 
-All calls to external APIs go through the app's own server routes in `src/app/api/`, so the OpenRouteService key never reaches the browser. See [ARCHITECTURE.md](ARCHITECTURE.md) for how the pieces fit together.
+All calls to external APIs go through the app's own server routes in `src/app/api/`, so the OpenRouteService key never reaches the browser. See [docs/architecture.md](docs/architecture.md) for how the pieces fit together.
 
 ## ⚖️ Folder Structure
 

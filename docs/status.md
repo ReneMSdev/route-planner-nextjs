@@ -13,7 +13,7 @@ mobile issues. The unused `/api/autocomplete` route was removed.
 Production deploys from `main` (Vercel Production); pushes to other branches get
 Preview deploys. There are no automated tests, so lint, build, offline scripts,
 and manual browser checks are the checks. `README.md` describes the app for
-visitors, and `ARCHITECTURE.md` describes how it fits together.
+visitors, and `docs/architecture.md` describes how it fits together.
 
 ## App
 
@@ -84,12 +84,12 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
 | Import parser | passing | Offline Node scripts against the real modules: 36/36 cases including the then Maps URL helper (90d43ae, 2026-10-01). Scripts live in the session scratchpad, not the repo |
 | Demo addresses | verified | All 43 geocoded to the expected place (the 6 entries corrected during the check landed ≤0.1 km from the real spot), and one ORS directions call through all 43 returned 200 (aa5a0b5, 2026-10-01) |
 | Geocode spacing (`/api/geocode`) | logic checked | Offline Node test with a mocked fetch: 3 concurrent requests → 6 calls 1098–1101 ms apart (2026-10-01). Not tested against Nominatim under real concurrency |
-| ARCHITECTURE.md diagrams | render | All 3 Mermaid blocks parsed and rendered with Mermaid 11 in Chrome (2026-10-01) |
+| docs/architecture.md diagrams | render | All 3 Mermaid blocks parsed and rendered with Mermaid 11 in Chrome (2026-10-01) |
 | npm audit | 4 remaining (3 high, 1 moderate) | `npm audit`, 2026-09-30. Dependencies unchanged since (0262200). Remaining: `xlsx` (no npm fix), `postcss` bundled in `next` (fixed only in Next 16), `brace-expansion` (eslint dev tooling) |
 | PDF download | partly verified | The generated PDF's contents were checked in the browser (download intercepted). Opening a downloaded file wasn't checked |
 | Tests | none | No test suite in the repo |
 
-**Known issues** (details and the full list in `docs/TODO.md`):
+**Known issues** (details and the full list in `docs/todo.md`):
 - Abuse protection is per server instance and trusts `x-forwarded-for` (fine on
   Vercel, spoofable elsewhere). The geocode limit counts requests, not
   addresses, so one visitor can still fill the shared Nominatim queue.
@@ -112,5 +112,5 @@ and export as a PDF or to Google Maps (a button, plus a QR code on desktop). API
 Rules for this file:
 - Rewrite it to describe the current state. It isn't a log; history lives in git.
 - Every "passing" or "works" claim needs evidence from a run, or it's marked unverified.
-- Future work goes in TODO.md, and reasons in decisions.md.
+- Future work goes in todo.md, and reasons in decisions.md.
 -->
